@@ -1,0 +1,16 @@
+# Credentials — NEVER commit
+.credentials/
+
+# Environment variables
+.env
+.env.*
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
