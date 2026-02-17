@@ -1,6 +1,10 @@
 # @channel47/bing-ads-mcp
 
-Microsoft Advertising (Bing Ads) MCP server for read-only campaign and reporting workflows.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+MCP server for Microsoft Advertising (Bing Ads) — read-only campaign metadata and async reporting.
+
+Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## Features
 
@@ -22,51 +26,50 @@ Run:
 bing-ads-mcp
 ```
 
-## Required Environment Variables
+## Configuration
 
-- `BING_ADS_CLIENT_ID`
-- `BING_ADS_CLIENT_SECRET`
-- `BING_ADS_REFRESH_TOKEN`
-- `BING_ADS_DEVELOPER_TOKEN`
-- `BING_ADS_CUSTOMER_ID`
-- `BING_ADS_ACCOUNT_ID`
+| Variable | Required |
+|----------|----------|
+| `BING_ADS_CLIENT_ID` | Yes |
+| `BING_ADS_CLIENT_SECRET` | Yes |
+| `BING_ADS_REFRESH_TOKEN` | Yes |
+| `BING_ADS_DEVELOPER_TOKEN` | Yes |
+| `BING_ADS_CUSTOMER_ID` | Yes |
+| `BING_ADS_ACCOUNT_ID` | Yes |
 
 ## Tools
 
-### `list_accounts`
+### list_accounts
 
 List accessible accounts under the configured customer.
 
-Optional input:
+**Parameters:**
+- `customer_id` (string, optional)
 
-- `customer_id` (string)
-
-### `query`
+### query
 
 Read entity metadata from Campaign Management.
 
-Input:
-
-- `entity`: one of `campaigns`, `ad_groups`, `keywords`, `ads`
+**Parameters:**
+- `entity` (required): `campaigns`, `ad_groups`, `keywords`, or `ads`
 - `account_id` (optional)
 - `customer_id` (optional)
 - `campaign_id` (required for `ad_groups`)
 - `ad_group_id` (required for `keywords`, `ads`)
 - `campaign_type` (optional, campaigns only)
 
-### `report`
+### report
 
 Generate and parse Microsoft Advertising reports.
 
-Input:
-
-- `report_type`: one of `campaign`, `ad_group`, `keyword`, `ad`, `search_query`, `account`, `asset_group`
+**Parameters:**
+- `report_type` (required): `campaign`, `ad_group`, `keyword`, `ad`, `search_query`, `account`, or `asset_group`
 - `account_id` (optional)
 - `customer_id` (optional)
 - `columns` (optional string[])
-- `date_range` (default `LastSevenDays`)
-- `aggregation` (default `Daily`)
-- `limit` (default `100`)
+- `date_range` (default: `LastSevenDays`)
+- `aggregation` (default: `Daily`)
+- `limit` (default: `100`)
 
 ## Development
 
@@ -74,3 +77,13 @@ Input:
 npm test
 ```
 
+## Links
+
+- [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
+- [Build Notes Newsletter](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
+- [Media Buyer Plugin](https://github.com/channel47/channel47) — the paid-search toolkit this MCP powers
+- [GitHub Repository](https://github.com/channel47/mcps/tree/main/bing-ads)
+
+## License
+
+MIT

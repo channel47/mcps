@@ -1,12 +1,17 @@
 # Channel 47 MCP Servers
 
-Open-source MCP servers by [Channel 47](https://channel47.dev). Built from real workflows — paid ads, SEO, image generation, and content.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Open-source MCP servers built from real workflows — paid ads, SEO, image generation, and content.
+
+Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## Servers
 
 | Server | Description | Language | Install |
 |--------|-------------|----------|---------|
 | [google-ads](./google-ads/) | Google Ads API via GAQL | Node.js | `npm i @channel47/google-ads-mcp` |
+| [bing-ads](./bing-ads/) | Microsoft Advertising read-only campaigns and reporting | Node.js | `npm i -g @channel47/bing-ads-mcp` |
 | [dataforseo](./dataforseo/) | DataForSEO keyword research API | TypeScript | `npm i dataforseo-mcp-server` |
 | [nano-banana](./nano-banana/) | AI image generation (Google Gemini) | Python | `pip install gemini-image-mcp` |
 | [substack](./substack/) | Substack newsletter scraping | Python | Local only |
