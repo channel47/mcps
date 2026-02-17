@@ -1,0 +1,34 @@
+{
+  "name": "dataforseo-mcp-server",
+  "version": "1.0.0",
+  "description": "A comprehensive stdio MCP server for DataForSEO API",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "dataforseo",
+    "api",
+    "seo"
+  ],
+  "author": "Channel47",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/channel47/mcps.git",
+    "directory": "dataforseo"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.19.1",
+    "axios": "^1.6.7",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

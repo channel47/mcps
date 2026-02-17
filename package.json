@@ -1,0 +1,14 @@
+{
+  "name": "@channel47/mcps",
+  "private": true,
+  "workspaces": [
+    "dataforseo",
+    "google-ads",
+    "nano-banana",
+    "substack"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
