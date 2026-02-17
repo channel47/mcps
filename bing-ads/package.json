@@ -1,0 +1,47 @@
+{
+  "name": "@channel47/bing-ads-mcp",
+  "version": "1.0.0",
+  "description": "Microsoft Advertising (Bing Ads) MCP Server - Query campaigns and reports via REST API",
+  "main": "server/index.js",
+  "bin": {
+    "bing-ads-mcp": "server/index.js"
+  },
+  "type": "module",
+  "files": [
+    "server/**/*.js",
+    "server/**/*.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test *.test.js test/*.test.js",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "bing-ads",
+    "microsoft-advertising",
+    "analytics",
+    "advertising",
+    "claude"
+  ],
+  "author": "Channel47",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/channel47/mcps.git",
+    "directory": "bing-ads"
+  },
+  "bugs": {
+    "url": "https://github.com/channel47/mcps/issues"
+  },
+  "homepage": "https://github.com/channel47/mcps/tree/main/bing-ads#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

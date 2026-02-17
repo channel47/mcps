@@ -2,6 +2,7 @@
   "name": "@channel47/mcps",
   "private": true,
   "workspaces": [
+    "bing-ads",
     "dataforseo",
     "google-ads",
     "nano-banana",
