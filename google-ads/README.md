@@ -260,8 +260,8 @@ The plugin ensures Claude consults domain knowledge before executing queries, pr
 ### Setup
 
 ```bash
-git clone https://github.com/channel47/google-ads-mcp-server.git
-cd google-ads-mcp-server
+git clone https://github.com/channel47/mcps.git
+cd mcps/google-ads
 npm install
 ```
 
@@ -318,4 +318,4 @@ MIT - See [LICENSE](LICENSE) file for details.
 
 For issues or questions:
 - Plugin-related: [Plugin Repository Issues](https://github.com/channel47/channel47/issues)
-- Server-related: [Server Repository Issues](https://github.com/channel47/google-ads-mcp-server/issues)
+- Server-related: [Server Repository Issues](https://github.com/channel47/mcps/issues)

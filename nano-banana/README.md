@@ -130,8 +130,8 @@ mcp__nano-banana__delete_file
 
 ```bash
 # Clone and setup
-git clone https://github.com/channel47/nano-banana-mcp.git
-cd nano-banana-mcp
+git clone https://github.com/channel47/mcps.git
+cd mcps/nano-banana
 uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 
@@ -148,7 +148,7 @@ ruff check src/ tests/
 - [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes Newsletter](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
 - [PyPI Package](https://pypi.org/project/gemini-image-mcp/)
-- [GitHub Repository](https://github.com/channel47/nano-banana-mcp)
+- [GitHub Repository](https://github.com/channel47/mcps/tree/main/nano-banana)
 
 ## License
 
