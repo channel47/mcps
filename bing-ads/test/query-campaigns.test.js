@@ -36,7 +36,8 @@ describe('query', () => {
 
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Campaigns/QueryByAccountId'), true);
-    assert.equal(captured.body.AccountId, 123123123);
+    assert.equal(captured.body.AccountId, '123123123');
+    assert.equal(captured.body.CampaignType, undefined);
     assert.equal(payload.data[0].id, '333333333');
     assert.equal(payload.data[0].bidding_scheme_type, 'EnhancedCpcBiddingScheme');
   });
@@ -69,7 +70,7 @@ describe('query', () => {
 
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Keywords/QueryByAdGroupId'), true);
-    assert.equal(captured.body.AdGroupId, 444444444);
+    assert.equal(captured.body.AdGroupId, '444444444');
     assert.equal(payload.data[0].text, 'channel 47');
     assert.equal(payload.data[0].bid_amount, 2.15);
   });
@@ -91,6 +92,23 @@ describe('query', () => {
     assert.equal(payload.data[0].type, 'ResponsiveSearchAd');
     assert.equal(payload.data[0].headline_1, 'Official Channel 47');
     assert.equal(payload.data[0].description_1, 'Shop direct from Channel 47.');
+  });
+
+  test('includes CampaignType when explicitly provided', async () => {
+    const { query } = await import('../server/tools/query-campaigns.js');
+    let captured = null;
+
+    await query(
+      { entity: 'campaigns', campaign_type: 'Search Shopping' },
+      {
+        request: async (url, body, context) => {
+          captured = { url, body, context };
+          return { Campaigns: [] };
+        }
+      }
+    );
+
+    assert.equal(captured.body.CampaignType, 'Search Shopping');
   });
 
   test('prefers account_id param over env default', async () => {

@@ -37,7 +37,7 @@ const TOOLS = [
   },
   {
     name: 'query',
-    description: 'Query Microsoft Advertising campaign data. Supports campaigns, ad_groups, keywords, and ads. Read-only.',
+    description: 'Query Microsoft Advertising account structure — campaigns, ad groups, keywords, and ads. Returns configuration and settings (names, statuses, budgets, bids, match types), not performance metrics. Use the report tool for impressions, clicks, spend, and conversions.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -64,8 +64,7 @@ const TOOLS = [
         },
         campaign_type: {
           type: 'string',
-          description: 'Campaign type filter (space-delimited). Default returns all types.',
-          default: 'Search Shopping DynamicSearchAds Audience PerformanceMax'
+          description: 'Campaign type filter (e.g. "Search", "Shopping", "PerformanceMax"). Omit to return all types.'
         }
       },
       required: ['entity']
@@ -73,7 +72,7 @@ const TOOLS = [
   },
   {
     name: 'report',
-    description: 'Generate Bing Ads performance reports. Handles submit, poll, download, and CSV parsing.',
+    description: 'Pull Microsoft Advertising performance data — impressions, clicks, spend, conversions, and more. Use this for any metrics or time-series data. Returns parsed CSV rows. For account structure (campaign names, budgets, keywords), use the query tool instead.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -120,7 +119,7 @@ const TOOLS = [
   },
   {
     name: 'mutate',
-    description: 'Execute write operations on Microsoft Advertising entities. Supports campaigns, ad_groups, keywords, ads, and negative_keywords. Default dry_run=true validates without making changes.',
+    description: 'Execute write operations on Microsoft Advertising entities. Supports campaigns, ad_groups, keywords, ads, and negative_keywords. Default dry_run=true validates without making changes.\n\nOperation format examples:\n- Campaign update: { entity: "campaigns", update: { Id: "123", DailyBudget: 50 } }\n- Keyword create: { entity: "keywords", create: { ad_group_id: "456", Text: "shoes", MatchType: "Exact", Bid: { Amount: 1.5 } } }\n- Negative keyword create: { entity: "negative_keywords", create: { entity_id: "789", entity_type: "Campaign", Text: "free", MatchType: "Phrase" } }\n- Remove: { entity: "keywords", remove: { Id: "321", ad_group_id: "456" } }',
     inputSchema: {
       type: 'object',
       properties: {
@@ -134,7 +133,7 @@ const TOOLS = [
         },
         operations: {
           type: 'array',
-          description: 'Array of operations. Each needs "entity" and one of "create", "update", or "remove".',
+          description: 'Array of operations. Each needs "entity" (campaigns|ad_groups|keywords|ads|negative_keywords) and one of "create", "update", or "remove". Keywords and ads require ad_group_id inside the action object. Ad groups require campaign_id. Negative keywords require entity_id and entity_type (Campaign or AdGroup).',
           items: { type: 'object' }
         },
         partial_failure: {
@@ -214,4 +213,3 @@ main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });
-

@@ -70,8 +70,8 @@ function buildEntityRequest(entity, params, accountId) {
   if (entity === 'campaigns') {
     return {
       body: {
-        AccountId: Number(accountId),
-        CampaignType: params.campaign_type || 'Search Shopping DynamicSearchAds Audience PerformanceMax',
+        AccountId: String(accountId),
+        ...(params.campaign_type ? { CampaignType: params.campaign_type } : {}),
         ReturnAdditionalFields: 'BidStrategyId'
       },
       normalize: normalizeCampaign
@@ -82,7 +82,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['campaign_id']);
     return {
       body: {
-        CampaignId: Number(params.campaign_id)
+        CampaignId: String(params.campaign_id)
       },
       normalize: normalizeAdGroup
     };
@@ -92,7 +92,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['ad_group_id']);
     return {
       body: {
-        AdGroupId: Number(params.ad_group_id)
+        AdGroupId: String(params.ad_group_id)
       },
       normalize: normalizeKeyword
     };
@@ -101,7 +101,7 @@ function buildEntityRequest(entity, params, accountId) {
   validateRequired(params, ['ad_group_id']);
   return {
     body: {
-      AdGroupId: Number(params.ad_group_id)
+      AdGroupId: String(params.ad_group_id)
     },
     normalize: normalizeAd
   };
