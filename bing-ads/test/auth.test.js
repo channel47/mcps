@@ -44,14 +44,24 @@ describe('validateEnvironment', () => {
     assert.equal(result.missing.length, 0);
   });
 
-  test('returns single missing var', async () => {
+  test('passes when client_secret is omitted (public client)', async () => {
     delete process.env.BING_ADS_CLIENT_SECRET;
 
     const { validateEnvironment } = await importFresh('../server/auth.js');
     const result = validateEnvironment();
 
+    assert.equal(result.valid, true);
+    assert.equal(result.missing.length, 0);
+  });
+
+  test('returns single missing var', async () => {
+    delete process.env.BING_ADS_DEVELOPER_TOKEN;
+
+    const { validateEnvironment } = await importFresh('../server/auth.js');
+    const result = validateEnvironment();
+
     assert.equal(result.valid, false);
-    assert.ok(result.missing.includes('BING_ADS_CLIENT_SECRET'));
+    assert.ok(result.missing.includes('BING_ADS_DEVELOPER_TOKEN'));
     assert.equal(result.missing.length, 1);
   });
 
@@ -65,9 +75,8 @@ describe('validateEnvironment', () => {
     const result = validateEnvironment();
 
     assert.equal(result.valid, false);
-    assert.equal(result.missing.length, 4);
+    assert.equal(result.missing.length, 3);
     assert.ok(result.missing.includes('BING_ADS_CLIENT_ID'));
-    assert.ok(result.missing.includes('BING_ADS_CLIENT_SECRET'));
     assert.ok(result.missing.includes('BING_ADS_REFRESH_TOKEN'));
     assert.ok(result.missing.includes('BING_ADS_DEVELOPER_TOKEN'));
   });
@@ -208,6 +217,24 @@ describe('getAccessToken', () => {
     assert.match(capturedBody, /grant_type=refresh_token/);
     assert.match(capturedBody, /scope=/);
     assert.equal(capturedHeaders['Content-Type'], 'application/x-www-form-urlencoded');
+  });
+
+  test('omits client_secret from token request when env var is not set (public client)', async () => {
+    delete process.env.BING_ADS_CLIENT_SECRET;
+    let capturedBody = null;
+
+    global.fetch = async (_url, options) => {
+      capturedBody = String(options.body);
+      return jsonResponse({ access_token: 'tok', expires_in: 3600 });
+    };
+
+    const { getAccessToken } = await importFresh('../server/auth.js');
+    await getAccessToken();
+
+    assert.match(capturedBody, /client_id=client-id/);
+    assert.doesNotMatch(capturedBody, /client_secret/);
+    assert.match(capturedBody, /refresh_token=refresh-token-1/);
+    assert.match(capturedBody, /grant_type=refresh_token/);
   });
 
   test('defaults expires_in to 3600 when missing from response', async () => {

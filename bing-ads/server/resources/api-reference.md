@@ -15,7 +15,7 @@ Token endpoint:
 Required fields:
 
 - `client_id`
-- `client_secret`
+- `client_secret` (confidential client apps only — omit for public clients)
 - `refresh_token`
 - `grant_type=refresh_token`
 - `scope=https://ads.microsoft.com/msads.manage offline_access`

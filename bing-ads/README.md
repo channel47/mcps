@@ -41,13 +41,13 @@ bing-ads-mcp
 |----------|-------------|
 | `BING_ADS_DEVELOPER_TOKEN` | Microsoft Advertising API Developer Token |
 | `BING_ADS_CLIENT_ID` | OAuth 2.0 Client ID from Azure AD |
-| `BING_ADS_CLIENT_SECRET` | OAuth 2.0 Client Secret |
 | `BING_ADS_REFRESH_TOKEN` | OAuth 2.0 Refresh Token |
 
 ### Optional
 
 | Variable | Description |
 |----------|-------------|
+| `BING_ADS_CLIENT_SECRET` | OAuth 2.0 Client Secret (required for confidential client apps, omit for public client apps) |
 | `BING_ADS_CUSTOMER_ID` | Default Customer ID |
 | `BING_ADS_ACCOUNT_ID` | Default Account ID |
 

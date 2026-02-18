@@ -4,7 +4,6 @@ const REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
 const REQUIRED_ENV_VARS = [
   'BING_ADS_CLIENT_ID',
-  'BING_ADS_CLIENT_SECRET',
   'BING_ADS_REFRESH_TOKEN',
   'BING_ADS_DEVELOPER_TOKEN'
 ];
@@ -60,13 +59,18 @@ async function performAccessTokenRefresh() {
     throw new Error('Missing refresh token for Microsoft Advertising OAuth flow');
   }
 
-  const body = new URLSearchParams({
+  const params = {
     client_id: process.env.BING_ADS_CLIENT_ID,
-    client_secret: process.env.BING_ADS_CLIENT_SECRET,
     refresh_token: currentRefreshToken,
     grant_type: 'refresh_token',
     scope: TOKEN_SCOPE
-  });
+  };
+
+  if (process.env.BING_ADS_CLIENT_SECRET) {
+    params.client_secret = process.env.BING_ADS_CLIENT_SECRET;
+  }
+
+  const body = new URLSearchParams(params);
 
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
