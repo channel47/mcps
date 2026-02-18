@@ -77,6 +77,7 @@ describe('query', () => {
 
   test('routes ads query by ad_group_id', async () => {
     const { query } = await import('../server/tools/query-campaigns.js');
+    let captured = null;
 
     const result = await query(
       {
@@ -84,14 +85,21 @@ describe('query', () => {
         ad_group_id: '444444444'
       },
       {
-        request: async () => MOCK_ADS_RESPONSE
+        request: async (url, body, context) => {
+          captured = { url, body, context };
+          return MOCK_ADS_RESPONSE;
+        }
       }
     );
 
     const payload = JSON.parse(result.content[0].text);
+    assert.equal(captured.url.endsWith('/Ads/QueryByAdGroupId'), true);
+    assert.equal(captured.body.AdGroupId, '444444444');
+    assert.ok(Array.isArray(captured.body.AdTypes));
+    assert.ok(captured.body.AdTypes.includes('ResponsiveSearch'));
     assert.equal(payload.data[0].type, 'ResponsiveSearchAd');
-    assert.equal(payload.data[0].headline_1, 'Official Channel 47');
-    assert.equal(payload.data[0].description_1, 'Shop direct from Channel 47.');
+    assert.deepEqual(payload.data[0].headlines, ['Official Channel 47']);
+    assert.deepEqual(payload.data[0].descriptions, ['Shop direct from Channel 47.']);
   });
 
   test('includes CampaignType when explicitly provided', async () => {
@@ -131,4 +139,3 @@ describe('query', () => {
     assert.equal(capturedContext.accountId, '888');
   });
 });
-
