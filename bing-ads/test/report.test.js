@@ -101,7 +101,10 @@ describe('report', () => {
     );
 
     const payload = JSON.parse(result.content[0].text);
-    assert.equal(calls[0].body.ReportRequest.__type, 'CampaignPerformanceReportRequest');
+    assert.equal(
+      calls[0].body.ReportRequest.Type,
+      'CampaignPerformanceReportRequest'
+    );
     assert.equal(payload.data.length, 1);
     assert.equal(payload.data[0].CampaignName, 'Search - Brand');
   });
@@ -141,4 +144,3 @@ describe('report', () => {
     );
   });
 });
-

@@ -122,7 +122,7 @@ function buildReportRequest(params, accountId) {
 
   return {
     ReportRequest: {
-      __type: REPORT_TYPE_MAP[params.report_type],
+      Type: REPORT_TYPE_MAP[params.report_type],
       ReportName: `${params.report_type} performance report`,
       Format: 'Csv',
       FormatVersion: '2.0',
@@ -133,7 +133,7 @@ function buildReportRequest(params, accountId) {
       Aggregation: aggregation,
       Columns: columns,
       Scope: {
-        AccountIds: [Number(accountId)]
+        AccountIds: [String(accountId)]
       },
       Time: {
         PredefinedTime: dateRange
@@ -240,4 +240,3 @@ export async function report(params = {}, dependencies = {}) {
     return formatError(error);
   }
 }
-

@@ -56,22 +56,39 @@ function normalizeKeyword(keyword) {
 }
 
 function normalizeAd(ad) {
-  return {
+  const base = {
     id: String(ad?.Id ?? ''),
     type: ad?.Type ?? '',
     status: ad?.Status ?? '',
-    headline_1: ad?.Headlines?.[0]?.Text ?? null,
-    description_1: ad?.Descriptions?.[0]?.Text ?? null,
     final_urls: ad?.FinalUrls ?? []
   };
+
+  if (ad?.Headlines) {
+    base.headlines = ad.Headlines.map((headline) => headline?.Asset?.Text ?? headline?.Text ?? '');
+  }
+  if (ad?.Descriptions) {
+    base.descriptions = ad.Descriptions.map((description) => description?.Asset?.Text ?? description?.Text ?? '');
+  }
+
+  if (ad?.TitlePart1) base.title_part_1 = ad.TitlePart1;
+  if (ad?.TitlePart2) base.title_part_2 = ad.TitlePart2;
+  if (ad?.TitlePart3) base.title_part_3 = ad.TitlePart3;
+  if (ad?.Text) base.text = ad.Text;
+  if (ad?.TextPart2) base.text_part_2 = ad.TextPart2;
+
+  if (ad?.Path1) base.path_1 = ad.Path1;
+  if (ad?.Path2) base.path_2 = ad.Path2;
+  if (ad?.Domain) base.domain = ad.Domain;
+
+  return base;
 }
 
 function buildEntityRequest(entity, params, accountId) {
   if (entity === 'campaigns') {
     return {
       body: {
-        AccountId: Number(accountId),
-        CampaignType: params.campaign_type || 'Search Shopping DynamicSearchAds Audience PerformanceMax',
+        AccountId: String(accountId),
+        ...(params.campaign_type ? { CampaignType: params.campaign_type } : {}),
         ReturnAdditionalFields: 'BidStrategyId'
       },
       normalize: normalizeCampaign
@@ -82,7 +99,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['campaign_id']);
     return {
       body: {
-        CampaignId: Number(params.campaign_id)
+        CampaignId: String(params.campaign_id)
       },
       normalize: normalizeAdGroup
     };
@@ -92,7 +109,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['ad_group_id']);
     return {
       body: {
-        AdGroupId: Number(params.ad_group_id)
+        AdGroupId: String(params.ad_group_id)
       },
       normalize: normalizeKeyword
     };
@@ -101,7 +118,16 @@ function buildEntityRequest(entity, params, accountId) {
   validateRequired(params, ['ad_group_id']);
   return {
     body: {
-      AdGroupId: Number(params.ad_group_id)
+      AdGroupId: String(params.ad_group_id),
+      AdTypes: [
+        'AppInstall',
+        'DynamicSearch',
+        'ExpandedText',
+        'Hotel',
+        'Product',
+        'ResponsiveAd',
+        'ResponsiveSearch'
+      ]
     },
     normalize: normalizeAd
   };
@@ -137,4 +163,3 @@ export async function query(params = {}, dependencies = {}) {
     return formatError(error);
   }
 }
-
