@@ -7,19 +7,20 @@ MCP server for Google Ads API access via GAQL (Google Ads Query Language). Built
 
 Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
-## Overview
+## What It Does
 
-This is a Model Context Protocol (MCP) server that provides tools for querying and mutating Google Ads data using GAQL. It's designed to work seamlessly with Claude Code and other MCP-compatible clients.
+- **List accounts** accessible under your MCC or individual credentials
+- **Query anything** with raw GAQL — campaigns, ad groups, keywords, search terms, assets, any resource
+- **Mutate entities** — campaigns, ad groups, ads, keywords, budgets, assets with dry-run safety
+- **Resources and prompts** — bundled GAQL reference docs and operation templates
 
 ## Installation
 
 ### For Claude Code Plugin Users
 
-This package is bundled with the [media-buyer Claude Code plugin](https://channel47.dev). No manual installation required.
+Bundled with the [media-buyer plugin](https://github.com/channel47/channel47). No manual install required.
 
 ### Standalone Use
-
-For use with other MCP clients or standalone testing:
 
 ```bash
 npx @channel47/google-ads-mcp@latest
@@ -33,8 +34,6 @@ google-ads-mcp
 ```
 
 ## Configuration
-
-Set these environment variables before running:
 
 ### Required
 
@@ -233,89 +232,28 @@ Campaign creation requires specific fields since Google Ads API v19.2 (September
 - `target_impression_share` - Target impression share
 - `bidding_strategy` - Reference to portfolio bidding strategy
 
-## Resources & Prompts
-
-The server provides:
-- **Resources**: GAQL reference documentation accessible via MCP resources
-- **Prompts**: Templates for common Google Ads operations
-
-## Usage with Claude Code
-
-This server is designed to work with the [media-buyer plugin](https://github.com/channel47/channel47), which provides:
-
-- **Skills** for campaign building, creative testing, and account audits
-- **PreToolUse Hook** that validates mutations before execution
-- **Reference docs** with GAQL patterns, ad copy formulas, and performance benchmarks
-
-The plugin ensures Claude consults domain knowledge before executing queries, preventing hallucinated GAQL.
-
 ## Development
-
-### Prerequisites
-
-- Node.js 18 or higher
-- Google Ads API access (Developer Token)
-- OAuth 2.0 credentials from Google Cloud
-
-### Setup
 
 ```bash
 git clone https://github.com/channel47/mcps.git
-cd mcps/google-ads
-npm install
+cd mcps
+npm install    # workspaces — installs all servers
+npm test       # runs all server tests
 ```
 
-### Testing
+~200 lines of server code. 3 core tools. Dry-run by default. OAuth 2.0 with environment-based credentials.
 
-```bash
-npm test
-```
-
-### Running Locally
-
-```bash
-npm start
-```
-
-## Architecture
-
-**Minimal Design:**
-- ~200 lines of server code
-- 3 core tools (list, query, mutate)
-- OAuth 2.0 authentication
-- Resources for GAQL reference
-- Prompts for common patterns
-
-**Security:**
-- Dry-run mode enabled by default for mutations
-- Environment-based credential management
-- Input validation for all operations
-
-## Contributing
-
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with tests
-4. Submit a pull request
+Pairs with the [media-buyer plugin](https://github.com/channel47/channel47), which adds skills, mutation validation hooks, and GAQL reference docs on top of this server.
 
 ## Links
 
 - [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
-- [Build Notes Newsletter](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
-- [Media Buyer Plugin](https://github.com/channel47/channel47) — the full paid-search toolkit this MCP powers
+- [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
+- [Media Buyer Plugin](https://github.com/channel47/channel47) — the paid-search toolkit this MCP powers
 - [NPM Package](https://www.npmjs.com/package/@channel47/google-ads-mcp)
-- [Google Ads API Documentation](https://developers.google.com/google-ads/api/docs/start)
-- [GAQL Reference](https://developers.google.com/google-ads/api/docs/query/overview)
-- [Model Context Protocol](https://modelcontextprotocol.io)
+- [Google Ads API](https://developers.google.com/google-ads/api/docs/start) / [GAQL Reference](https://developers.google.com/google-ads/api/docs/query/overview)
+- [X](https://x.com/ctrlswing) / [LinkedIn](https://www.linkedin.com/in/jackson-d-9979a7a0/) / [GitHub](https://github.com/channel47)
 
 ## License
 
-MIT - See [LICENSE](LICENSE) file for details.
-
-## Support
-
-For issues or questions:
-- Plugin-related: [Plugin Repository Issues](https://github.com/channel47/channel47/issues)
-- Server-related: [Server Repository Issues](https://github.com/channel47/mcps/issues)
+MIT
