@@ -62,7 +62,7 @@ List all accessible Microsoft Advertising accounts.
 
 **Returns:** Array of account objects with ID, name, number, status, and pause reason.
 
-### query_campaigns
+### query
 
 Query entity data from Campaign Management API.
 
@@ -90,9 +90,7 @@ Generate performance reports with configurable date ranges, aggregation, and col
 - `report_type` (string, required): `campaign`, `ad_group`, `keyword`, `ad`, `search_query`, `account`, or `asset_group`
 - `account_id` (string, optional)
 - `customer_id` (string, optional)
-- `start_date` (string): Start date (YYYY-MM-DD)
-- `end_date` (string): End date (YYYY-MM-DD)
-- `date_range` (string): Predefined range (e.g., `LastSevenDays`). Alternative to start/end dates.
+- `date_range` (string): Predefined range — `Today`, `Yesterday`, `LastSevenDays`, `ThisWeek`, `LastWeek`, `Last14Days`, `Last30Days`, `LastFourWeeks`, `ThisMonth`, `LastMonth`, `LastThreeMonths`, `LastSixMonths`, `ThisYear`, `LastYear` (default: `LastSevenDays`)
 - `aggregation` (string, optional): `Summary`, `Daily`, `Weekly`, `Monthly`, or `Hourly` (default: Daily)
 - `columns` (array, optional): Custom column list (sensible defaults per report type)
 - `limit` (integer, optional): Max rows to return (default: 100)
@@ -102,8 +100,7 @@ Generate performance reports with configurable date ranges, aggregation, and col
 {
   "report_type": "search_query",
   "account_id": "123456789",
-  "start_date": "2026-02-01",
-  "end_date": "2026-02-17",
+  "date_range": "Last30Days",
   "aggregation": "Summary"
 }
 ```
@@ -119,19 +116,20 @@ Execute write operations on Microsoft Advertising entities. Dry-run enabled by d
 - `partial_failure` (boolean, optional): Enable partial failure mode (default: true)
 - `dry_run` (boolean, optional): Validate without executing (default: true)
 
-**Supported entities:** campaigns, ad_groups, keywords, ads
+**Supported entities:** campaigns, ad_groups, keywords, ads, negative_keywords
 
-**Supported operations:** create, update, delete
+**Supported operations:** create, update, remove
+
+Each operation object has `entity` plus one action key (`create`, `update`, or `remove`) whose value is the payload object.
 
 **Example:**
 ```json
 {
   "operations": [
     {
-      "entity": "campaign",
-      "operation": "update",
-      "id": "123456789",
-      "fields": {
+      "entity": "campaigns",
+      "update": {
+        "Id": "123456789",
         "Status": "Paused"
       }
     }
