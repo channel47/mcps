@@ -5,8 +5,9 @@ Standalone MCP servers published independently. npm workspaces monorepo.
 ## Structure
 
 ```
-google-ads/      # Google Ads API via GAQL (npm: @channel47/google-ads-mcp)
+bing-ads/        # Microsoft Advertising (Bing Ads) API (npm: @channel47/bing-ads-mcp)
 dataforseo/      # DataForSEO keyword research API (npm: dataforseo-mcp-server)
+google-ads/      # Google Ads API via GAQL (npm: @channel47/google-ads-mcp)
 nano-banana/     # AI image generation via Gemini (PyPI: gemini-image-mcp)
 substack/        # Substack newsletter scraping (local only)
 ```
