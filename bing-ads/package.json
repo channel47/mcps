@@ -1,7 +1,7 @@
 {
   "name": "@channel47/bing-ads-mcp",
-  "version": "1.0.0",
-  "description": "Microsoft Advertising (Bing Ads) MCP Server - Query campaigns and reports via REST API",
+  "version": "1.1.0",
+  "description": "Microsoft Advertising (Bing Ads) MCP Server - Query campaigns, reports, and mutate entities via REST API",
   "main": "server/index.js",
   "bin": {
     "bing-ads-mcp": "server/index.js"

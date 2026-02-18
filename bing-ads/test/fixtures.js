@@ -85,3 +85,86 @@ export const SAMPLE_REPORT_CSV = [
   '"Channel 47","Search - Brand",333333333,1000,120,55.75,12',
   '"Channel 47","Shopping (US)",444444444,2000,180,78.11,20'
 ].join('\n');
+
+// --- Mutation response fixtures ---
+
+export const MOCK_CAMPAIGNS_ADD_RESPONSE = {
+  CampaignIds: [777, null],
+  PartialErrors: [
+    {
+      Code: 1030,
+      Details: '',
+      ErrorCode: 'CampaignServiceInvalidCampaignName',
+      FieldPath: null,
+      ForwardCompatibilityMap: null,
+      Index: 1,
+      Message: 'The campaign name is not valid.',
+      Type: 'BatchError'
+    }
+  ]
+};
+
+export const MOCK_KEYWORDS_ADD_RESPONSE = {
+  KeywordIds: [888, 999],
+  PartialErrors: []
+};
+
+export const MOCK_UPDATE_RESPONSE = {
+  PartialErrors: []
+};
+
+export const MOCK_DELETE_RESPONSE = {
+  PartialErrors: []
+};
+
+export const MOCK_NEGATIVE_KW_RESPONSE = {
+  NegativeKeywordIds: [
+    { Ids: [111, 222] }
+  ],
+  NestedPartialErrors: []
+};
+
+export const MOCK_NEGATIVE_KW_PARTIAL_ERROR_RESPONSE = {
+  NegativeKeywordIds: [
+    { Ids: [111, null] }
+  ],
+  NestedPartialErrors: [
+    {
+      BatchErrors: [
+        {
+          Code: 4802,
+          Details: '',
+          ErrorCode: 'NegativeKeywordMatchTypeNotValid',
+          FieldPath: null,
+          ForwardCompatibilityMap: null,
+          Index: 1,
+          Message: 'The negative keyword match type is not valid.',
+          Type: 'BatchError'
+        }
+      ],
+      Code: 0,
+      Details: '',
+      ErrorCode: null,
+      FieldPath: null,
+      ForwardCompatibilityMap: null,
+      Index: 0,
+      Message: null,
+      Type: 'BatchError'
+    }
+  ]
+};
+
+export const MOCK_PARTIAL_FAILURE_RESPONSE = {
+  PartialErrors: [
+    {
+      Code: 1100,
+      Details: '',
+      ErrorCode: 'CampaignServiceInvalidBudget',
+      FieldPath: null,
+      ForwardCompatibilityMap: null,
+      Index: 0,
+      Message: 'The budget amount is not valid.',
+      Type: 'BatchError'
+    }
+  ]
+};

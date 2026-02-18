@@ -40,4 +40,18 @@ Campaign Management and Reporting endpoints also use:
 - `query` ads -> `POST /CampaignManagement/v13/Ads/QueryByAdGroupId`
 - `report` submit -> `POST /Reporting/v13/GenerateReport/Submit`
 - `report` poll -> `POST /Reporting/v13/GenerateReport/Poll`
+- `mutate` campaigns create -> `POST /CampaignManagement/v13/Campaigns`
+- `mutate` campaigns update -> `PUT /CampaignManagement/v13/Campaigns`
+- `mutate` campaigns delete -> `DELETE /CampaignManagement/v13/Campaigns`
+- `mutate` ad_groups create -> `POST /CampaignManagement/v13/AdGroups`
+- `mutate` ad_groups update -> `PUT /CampaignManagement/v13/AdGroups`
+- `mutate` ad_groups delete -> `DELETE /CampaignManagement/v13/AdGroups`
+- `mutate` keywords create -> `POST /CampaignManagement/v13/Keywords`
+- `mutate` keywords update -> `PUT /CampaignManagement/v13/Keywords`
+- `mutate` keywords delete -> `DELETE /CampaignManagement/v13/Keywords`
+- `mutate` ads create -> `POST /CampaignManagement/v13/Ads`
+- `mutate` ads update -> `PUT /CampaignManagement/v13/Ads`
+- `mutate` ads delete -> `DELETE /CampaignManagement/v13/Ads`
+- `mutate` negative_keywords create -> `POST /CampaignManagement/v13/EntityNegativeKeywords`
+- `mutate` negative_keywords delete -> `DELETE /CampaignManagement/v13/EntityNegativeKeywords`
 

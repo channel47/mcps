@@ -12,13 +12,14 @@ import {
 
 import { validateEnvironment } from './auth.js';
 import { listAccounts } from './tools/list-accounts.js';
+import { mutate } from './tools/mutate.js';
 import { query } from './tools/query-campaigns.js';
 import { report } from './tools/report.js';
 import { getPromptsList, renderPrompt } from './prompts/templates.js';
 import { getResourcesList, readResource } from './resources/index.js';
 
 const SERVER_NAME = 'bing-ads-mcp';
-const SERVER_VERSION = '1.0.0';
+const SERVER_VERSION = '1.1.0';
 
 const TOOLS = [
   {
@@ -116,6 +117,39 @@ const TOOLS = [
       },
       required: ['report_type']
     }
+  },
+  {
+    name: 'mutate',
+    description: 'Execute write operations on Microsoft Advertising entities. Supports campaigns, ad_groups, keywords, ads, and negative_keywords. Default dry_run=true validates without making changes.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        account_id: {
+          type: 'string',
+          description: 'Account ID (uses BING_ADS_ACCOUNT_ID when omitted)'
+        },
+        customer_id: {
+          type: 'string',
+          description: 'Customer ID (uses BING_ADS_CUSTOMER_ID when omitted)'
+        },
+        operations: {
+          type: 'array',
+          description: 'Array of operations. Each needs "entity" and one of "create", "update", or "remove".',
+          items: { type: 'object' }
+        },
+        partial_failure: {
+          type: 'boolean',
+          description: 'Continue after individual failures (default: true)',
+          default: true
+        },
+        dry_run: {
+          type: 'boolean',
+          description: 'Validate only, no API calls (default: true)',
+          default: true
+        }
+      },
+      required: ['operations']
+    }
   }
 ];
 
@@ -154,6 +188,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === 'report') {
     return report(params);
+  }
+
+  if (name === 'mutate') {
+    return mutate(params);
   }
 
   throw new Error(`Unknown tool: ${name}`);

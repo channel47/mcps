@@ -61,6 +61,29 @@ export function getCustomerId(params = {}) {
 }
 
 /**
+ * Validate that a value is a non-empty array.
+ */
+export function validateArray(value, paramName = 'value') {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`${paramName} must be a non-empty array`);
+  }
+}
+
+/**
+ * Validate that exactly one of the given keys is present in an object.
+ */
+export function validateOneOf(obj, keys, context = 'operation') {
+  const present = keys.filter((key) => obj[key] !== undefined);
+  if (present.length === 0) {
+    throw new Error(`${context} must include one of: ${keys.join(', ')}`);
+  }
+  if (present.length > 1) {
+    throw new Error(`${context} must include only one of: ${keys.join(', ')} (found: ${present.join(', ')})`);
+  }
+  return present[0];
+}
+
+/**
  * Validate supported Bing reporting date range.
  */
 export function validateDateRange(dateRange = 'Last7Days') {

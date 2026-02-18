@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { deflateRawSync } from 'node:zlib';
 
 import { listAccounts } from '../server/tools/list-accounts.js';
+import { mutate } from '../server/tools/mutate.js';
 import { query } from '../server/tools/query-campaigns.js';
 import { report } from '../server/tools/report.js';
 import {
   MOCK_ACCOUNTS_RESPONSE,
   MOCK_CAMPAIGNS_RESPONSE,
+  MOCK_UPDATE_RESPONSE,
   SAMPLE_REPORT_CSV
 } from './fixtures.js';
 
@@ -83,7 +85,7 @@ afterEach(() => {
 });
 
 describe('tool integration', () => {
-  test('runs all three tools with mocked dependencies', async () => {
+  test('runs all four tools with mocked dependencies', async () => {
     const listResult = await listAccounts(
       {},
       {
@@ -125,6 +127,22 @@ describe('tool integration', () => {
     const reportPayload = JSON.parse(reportResult.content[0].text);
     assert.equal(reportPayload.success, true);
     assert.equal(reportPayload.data.length, 1);
+
+    const mutateResult = await mutate(
+      {
+        operations: [
+          { entity: 'campaigns', update: { Id: 333333333, Status: 'Paused' } }
+        ],
+        dry_run: false
+      },
+      {
+        request: async () => MOCK_UPDATE_RESPONSE
+      }
+    );
+    const mutatePayload = JSON.parse(mutateResult.content[0].text);
+    assert.equal(mutatePayload.success, true);
+    assert.equal(mutatePayload.metadata.succeeded, 1);
+    assert.equal(mutatePayload.metadata.dryRun, false);
   });
 });
 
