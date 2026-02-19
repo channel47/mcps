@@ -223,6 +223,66 @@ export function buildApiRequest(group, accountId) {
   return buildCreateUpdateRequest(group, accountId, config, endpoint);
 }
 
+function transformAdForApi(ad) {
+  const transformed = { ...ad };
+
+  // Ensure Type field is set for the API
+  if (!transformed.Type && transformed.AdType) {
+    transformed.Type = transformed.AdType;
+    delete transformed.AdType;
+  }
+  if (!transformed.Type) {
+    transformed.Type = 'ResponsiveSearch';
+  }
+
+  // Transform headlines array of strings into AssetLink format
+  if (transformed.headlines && Array.isArray(transformed.headlines)) {
+    transformed.Headlines = transformed.headlines.map((text) => ({
+      Asset: { Type: 'TextAsset', Text: text }
+    }));
+    delete transformed.headlines;
+  } else if (transformed.Headlines && Array.isArray(transformed.Headlines)) {
+    // Check if already in correct format or needs transformation
+    if (typeof transformed.Headlines[0] === 'string') {
+      transformed.Headlines = transformed.Headlines.map((text) => ({
+        Asset: { Type: 'TextAsset', Text: text }
+      }));
+    }
+  }
+
+  // Transform descriptions array of strings into AssetLink format
+  if (transformed.descriptions && Array.isArray(transformed.descriptions)) {
+    transformed.Descriptions = transformed.descriptions.map((text) => ({
+      Asset: { Type: 'TextAsset', Text: text }
+    }));
+    delete transformed.descriptions;
+  } else if (transformed.Descriptions && Array.isArray(transformed.Descriptions)) {
+    if (typeof transformed.Descriptions[0] === 'string') {
+      transformed.Descriptions = transformed.Descriptions.map((text) => ({
+        Asset: { Type: 'TextAsset', Text: text }
+      }));
+    }
+  }
+
+  // Normalize final_urls to FinalUrls
+  if (transformed.final_urls && !transformed.FinalUrls) {
+    transformed.FinalUrls = transformed.final_urls;
+    delete transformed.final_urls;
+  }
+
+  // Normalize path fields
+  if (transformed.path_1 && !transformed.Path1) {
+    transformed.Path1 = transformed.path_1;
+    delete transformed.path_1;
+  }
+  if (transformed.path_2 && !transformed.Path2) {
+    transformed.Path2 = transformed.path_2;
+    delete transformed.path_2;
+  }
+
+  return transformed;
+}
+
 function buildCreateUpdateRequest(group, accountId, config, endpoint) {
   const { entity, items } = group;
 
@@ -231,6 +291,10 @@ function buildCreateUpdateRequest(group, accountId, config, endpoint) {
     // Strip parent field — it's sent as a top-level key
     if (config.parentField) {
       delete cleaned[config.parentField];
+    }
+    // Transform ad objects into the format the Bing Ads REST API expects
+    if (entity === 'ads') {
+      return transformAdForApi(cleaned);
     }
     return cleaned;
   });
