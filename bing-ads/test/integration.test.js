@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import { deflateRawSync } from 'node:zlib';
 
 import { listAccounts } from '../server/tools/list-accounts.js';
+import { listProducts } from '../server/tools/list-products.js';
 import { mutate } from '../server/tools/mutate.js';
 import { query } from '../server/tools/query-campaigns.js';
 import { report } from '../server/tools/report.js';
 import {
   MOCK_ACCOUNTS_RESPONSE,
   MOCK_CAMPAIGNS_RESPONSE,
+  MOCK_PRODUCTS_RESPONSE,
   MOCK_UPDATE_RESPONSE,
   SAMPLE_REPORT_CSV
 } from './fixtures.js';
@@ -85,7 +87,7 @@ afterEach(() => {
 });
 
 describe('tool integration', () => {
-  test('runs all four tools with mocked dependencies', async () => {
+  test('runs all tools with mocked dependencies', async () => {
     const listResult = await listAccounts(
       {},
       {
@@ -95,6 +97,17 @@ describe('tool integration', () => {
     const listPayload = JSON.parse(listResult.content[0].text);
     assert.equal(listPayload.success, true);
     assert.equal(listPayload.data.length, 2);
+
+    const productsResult = await listProducts(
+      { store_id: '12345' },
+      {
+        request: async () => MOCK_PRODUCTS_RESPONSE
+      }
+    );
+    const productsPayload = JSON.parse(productsResult.content[0].text);
+    assert.equal(productsPayload.success, true);
+    assert.equal(productsPayload.data.length, 1);
+    assert.equal(productsPayload.data[0].link, 'https://www.channel47.com/products/sku-1');
 
     const queryResult = await query(
       { entity: 'campaigns' },
@@ -145,4 +158,3 @@ describe('tool integration', () => {
     assert.equal(mutatePayload.metadata.dryRun, false);
   });
 });
-

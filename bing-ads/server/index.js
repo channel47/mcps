@@ -12,6 +12,7 @@ import {
 
 import { validateEnvironment } from './auth.js';
 import { listAccounts } from './tools/list-accounts.js';
+import { listProducts } from './tools/list-products.js';
 import { mutate } from './tools/mutate.js';
 import { query } from './tools/query-campaigns.js';
 import { report } from './tools/report.js';
@@ -33,6 +34,29 @@ const TOOLS = [
           description: 'Customer (manager) ID. Uses default from BING_ADS_CUSTOMER_ID when omitted.'
         }
       }
+    }
+  },
+  {
+    name: 'list_products',
+    description: 'List Microsoft Merchant Center products from the Content API. Returns feed fields including link (landing URL), title, price, availability, and offer ID.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        store_id: {
+          type: 'string',
+          description: 'Merchant Center store ID (BMC StoreId)'
+        },
+        max_results: {
+          type: 'integer',
+          description: 'Maximum products to return per request (1-250, default: 250)',
+          default: 250
+        },
+        start_token: {
+          type: 'string',
+          description: 'Pagination token from a prior list_products response'
+        }
+      },
+      required: ['store_id']
     }
   },
   {
@@ -183,6 +207,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === 'query') {
     return query(params);
+  }
+
+  if (name === 'list_products') {
+    return listProducts(params);
   }
 
   if (name === 'report') {

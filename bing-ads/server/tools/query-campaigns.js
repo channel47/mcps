@@ -23,6 +23,8 @@ const ENTITY_RESPONSE_KEYS = {
   ads: 'Ads'
 };
 
+const DEFAULT_CAMPAIGN_TYPES = 'Search Shopping DynamicSearchAds Audience Hotel PerformanceMax App';
+
 function normalizeCampaign(campaign) {
   return {
     id: String(campaign?.Id ?? ''),
@@ -88,7 +90,7 @@ function buildEntityRequest(entity, params, accountId) {
     return {
       body: {
         AccountId: String(accountId),
-        ...(params.campaign_type ? { CampaignType: params.campaign_type } : {}),
+        CampaignType: params.campaign_type || DEFAULT_CAMPAIGN_TYPES,
         ReturnAdditionalFields: 'BidStrategyId'
       },
       normalize: normalizeCampaign

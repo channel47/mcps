@@ -80,6 +80,22 @@ export const MOCK_ADS_RESPONSE = {
   ]
 };
 
+export const MOCK_PRODUCTS_RESPONSE = {
+  resources: [
+    {
+      id: 'online:en:US:sku-1',
+      offerId: 'sku-1',
+      title: 'Blue Shirt',
+      link: 'https://www.channel47.com/products/sku-1',
+      price: { value: '19.99', currency: 'USD' },
+      availability: 'in stock',
+      brand: 'Channel47',
+      imageLink: 'https://www.channel47.com/images/sku-1.jpg'
+    }
+  ],
+  nextPageToken: 'next-page-token'
+};
+
 export const SAMPLE_REPORT_CSV = [
   'AccountName,CampaignName,CampaignId,Impressions,Clicks,Spend,Conversions',
   '"Channel 47","Search - Brand",333333333,1000,120,55.75,12',

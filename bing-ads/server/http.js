@@ -3,12 +3,23 @@ import { getAccessToken, refreshAccessToken } from './auth.js';
 export const BING_BASE_URLS = {
   campaignManagement: 'https://campaign.api.bingads.microsoft.com/CampaignManagement/v13',
   reporting: 'https://reporting.api.bingads.microsoft.com/Reporting/v13',
-  customerManagement: 'https://clientcenter.api.bingads.microsoft.com/CustomerManagement/v13'
+  customerManagement: 'https://clientcenter.api.bingads.microsoft.com/CustomerManagement/v13',
+  contentApi: 'https://content.api.bingads.microsoft.com/shopping/v9.1/bmc'
 };
 
-function buildHeaders({ token, accountId, customerId, includeContextHeaders = true }) {
+function buildHeaders({
+  token,
+  accountId,
+  customerId,
+  includeContextHeaders = true,
+  tokenHeader = 'Authorization'
+}) {
+  const authValue = tokenHeader === 'AuthenticationToken'
+    ? token
+    : `Bearer ${token}`;
+
   const headers = {
-    Authorization: `Bearer ${token}`,
+    [tokenHeader]: authValue,
     DeveloperToken: process.env.BING_ADS_DEVELOPER_TOKEN,
     'Content-Type': 'application/json'
   };
@@ -88,12 +99,55 @@ export async function bingRequest(
     retryThrottled = true
   } = {}
 ) {
+  return executeRequest(url, body, {
+    method,
+    accountId,
+    customerId,
+    includeContextHeaders,
+    retryUnauthorized,
+    retryThrottled,
+    tokenHeader: 'Authorization'
+  });
+}
+
+export async function contentRequest(
+  url,
+  body,
+  {
+    method = 'GET',
+    retryUnauthorized = true,
+    retryThrottled = true
+  } = {}
+) {
+  return executeRequest(url, body, {
+    method,
+    includeContextHeaders: false,
+    retryUnauthorized,
+    retryThrottled,
+    tokenHeader: 'AuthenticationToken'
+  });
+}
+
+async function executeRequest(
+  url,
+  body,
+  {
+    method = 'POST',
+    accountId,
+    customerId,
+    includeContextHeaders = true,
+    retryUnauthorized = true,
+    retryThrottled = true,
+    tokenHeader = 'Authorization'
+  } = {}
+) {
   const token = await getAccessToken();
   const headers = buildHeaders({
     token,
     accountId,
     customerId,
-    includeContextHeaders
+    includeContextHeaders,
+    tokenHeader
   });
 
   const requestOptions = {
@@ -114,30 +168,31 @@ export async function bingRequest(
 
   if (response.status === 401 && retryUnauthorized) {
     await refreshAccessToken();
-    return bingRequest(url, body, {
+    return executeRequest(url, body, {
       method,
       accountId,
       customerId,
       includeContextHeaders,
       retryUnauthorized: false,
-      retryThrottled
+      retryThrottled,
+      tokenHeader
     });
   }
 
   const errorCode = extractErrorCode(payload);
   if (errorCode === 117 && retryThrottled) {
     await sleep(60_000);
-    return bingRequest(url, body, {
+    return executeRequest(url, body, {
       method,
       accountId,
       customerId,
       includeContextHeaders,
       retryUnauthorized,
-      retryThrottled: false
+      retryThrottled: false,
+      tokenHeader
     });
   }
 
   const errorMessage = extractErrorMessage(payload);
   throw new Error(`Bing Ads API request failed (${response.status}): ${errorMessage}`);
 }
-
