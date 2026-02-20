@@ -23,6 +23,7 @@ describe('query', () => {
   test('routes campaigns query and normalizes result', async () => {
     const { query } = await import('../server/tools/query-campaigns.js');
     let captured = null;
+    const expectedCampaignTypes = 'Search Shopping DynamicSearchAds Audience Hotel PerformanceMax App';
 
     const result = await query(
       { entity: 'campaigns' },
@@ -37,7 +38,7 @@ describe('query', () => {
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Campaigns/QueryByAccountId'), true);
     assert.equal(captured.body.AccountId, '123123123');
-    assert.equal(captured.body.CampaignType, undefined);
+    assert.equal(captured.body.CampaignType, expectedCampaignTypes);
     assert.equal(payload.data[0].id, '333333333');
     assert.equal(payload.data[0].bidding_scheme_type, 'EnhancedCpcBiddingScheme');
   });

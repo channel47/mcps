@@ -66,6 +66,7 @@ describe('BING_BASE_URLS', () => {
     assert.equal(BING_BASE_URLS.campaignManagement, 'https://campaign.api.bingads.microsoft.com/CampaignManagement/v13');
     assert.equal(BING_BASE_URLS.reporting, 'https://reporting.api.bingads.microsoft.com/Reporting/v13');
     assert.equal(BING_BASE_URLS.customerManagement, 'https://clientcenter.api.bingads.microsoft.com/CustomerManagement/v13');
+    assert.equal(BING_BASE_URLS.contentApi, 'https://content.api.bingads.microsoft.com/shopping/v9.1/bmc');
   });
 });
 
@@ -140,6 +141,26 @@ describe('request headers', () => {
 
     assert.equal(capturedHeaders.CustomerAccountId, undefined);
     assert.equal(capturedHeaders.CustomerId, '222');
+  });
+
+  test('contentRequest uses AuthenticationToken instead of Authorization', async () => {
+    let capturedHeaders = null;
+    let capturedMethod = null;
+
+    global.fetch = tokenThenApi((_url, options) => {
+      capturedHeaders = options.headers;
+      capturedMethod = options.method;
+      return jsonResponse({ resources: [] });
+    });
+
+    const { contentRequest } = await importFresh('../server/http.js');
+    await contentRequest('https://content.api.bingads.microsoft.com/shopping/v9.1/bmc/123/products?max-results=250');
+
+    assert.equal(capturedHeaders.AuthenticationToken, 'test-access-token');
+    assert.equal(capturedHeaders.Authorization, undefined);
+    assert.equal(capturedHeaders.DeveloperToken, 'dev-token');
+    assert.equal(capturedHeaders['Content-Type'], 'application/json');
+    assert.equal(capturedMethod, 'GET');
   });
 });
 

@@ -5,6 +5,7 @@
 - Campaign Management: `https://campaign.api.bingads.microsoft.com/CampaignManagement/v13`
 - Reporting: `https://reporting.api.bingads.microsoft.com/Reporting/v13`
 - Customer Management: `https://clientcenter.api.bingads.microsoft.com/CustomerManagement/v13`
+- Content API (Merchant Center): `https://content.api.bingads.microsoft.com/shopping/v9.1/bmc`
 
 ## OAuth Token Refresh
 
@@ -31,9 +32,16 @@ Campaign Management and Reporting endpoints also use:
 - `CustomerAccountId: <account_id>`
 - `CustomerId: <customer_id>`
 
+Content API endpoints use:
+
+- `AuthenticationToken: <access_token>` (same OAuth token, different header key)
+- `DeveloperToken: <BING_ADS_DEVELOPER_TOKEN>`
+- `Content-Type: application/json`
+
 ## Tool Endpoint Mapping
 
 - `list_accounts` -> `POST /CustomerManagement/v13/AccountsInfo/Query`
+- `list_products` -> `GET /shopping/v9.1/bmc/{storeId}/products`
 - `query` campaigns -> `POST /CampaignManagement/v13/Campaigns/QueryByAccountId`
 - `query` ad_groups -> `POST /CampaignManagement/v13/AdGroups/QueryByCampaignId`
 - `query` keywords -> `POST /CampaignManagement/v13/Keywords/QueryByAdGroupId`
@@ -54,4 +62,3 @@ Campaign Management and Reporting endpoints also use:
 - `mutate` ads delete -> `DELETE /CampaignManagement/v13/Ads`
 - `mutate` negative_keywords create -> `POST /CampaignManagement/v13/EntityNegativeKeywords`
 - `mutate` negative_keywords delete -> `DELETE /CampaignManagement/v13/EntityNegativeKeywords`
-

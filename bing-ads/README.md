@@ -3,13 +3,14 @@
 [![npm version](https://badge.fury.io/js/@channel47%2Fbing-ads-mcp.svg)](https://www.npmjs.com/package/@channel47/bing-ads-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-MCP server for Microsoft Advertising (Bing Ads) via REST API. Query campaigns, pull performance reports, and mutate entities with dry-run safety built in.
+MCP server for Microsoft Advertising (Bing Ads) via REST APIs. Query campaigns, pull performance reports, read Merchant Center product feeds, and mutate entities with dry-run safety built in.
 
 Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## What It Does
 
 - **List accounts** under a customer ID with status and pause reason
+- **List Merchant Center products** with feed URLs, pricing, and availability
 - **Query entities** — campaigns, ad groups, keywords, ads with normalized output
 - **Pull reports** — campaign, ad group, keyword, ad, search query, account, asset group performance with configurable date ranges and aggregation
 - **Mutate entities** — campaigns, ad groups, keywords, ads with dry-run preview and explicit approval
@@ -72,13 +73,32 @@ Query entity data from Campaign Management API.
 - `customer_id` (string, optional): Customer ID
 - `campaign_id` (string): Required when querying `ad_groups`
 - `ad_group_id` (string): Required when querying `keywords` or `ads`
-- `campaign_type` (string, optional): Filter campaigns by type
+- `campaign_type` (string, optional): Filter campaigns by type. When omitted, queries all supported types (`Search`, `Shopping`, `DynamicSearchAds`, `Audience`, `Hotel`, `PerformanceMax`, `App`)
 
 **Example:**
 ```json
 {
   "entity": "campaigns",
   "account_id": "123456789"
+}
+```
+
+### list_products
+
+List products from a Microsoft Merchant Center store via Content API.
+
+**Parameters:**
+- `store_id` (string, required): Merchant Center store ID
+- `max_results` (integer, optional): Page size (1-250, default: 250)
+- `start_token` (string, optional): Pagination token from previous response
+
+**Returns:** Array of products with `link`, `title`, `price`, `availability`, `offer_id`, and related feed attributes.
+
+**Example:**
+```json
+{
+  "store_id": "12345",
+  "max_results": 100
 }
 ```
 
