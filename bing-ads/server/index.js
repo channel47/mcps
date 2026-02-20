@@ -13,6 +13,8 @@ import {
 import { validateEnvironment } from './auth.js';
 import { listAccounts } from './tools/list-accounts.js';
 import { listProducts } from './tools/list-products.js';
+import { listStores } from './tools/list-stores.js';
+import { getEditorialReasons } from './tools/editorial.js';
 import { mutate } from './tools/mutate.js';
 import { query } from './tools/query-campaigns.js';
 import { report } from './tools/report.js';
@@ -20,7 +22,7 @@ import { getPromptsList, renderPrompt } from './prompts/templates.js';
 import { getResourcesList, readResource } from './resources/index.js';
 
 const SERVER_NAME = 'bing-ads-mcp';
-const SERVER_VERSION = '1.1.4';
+const SERVER_VERSION = '1.3.1';
 
 const TOOLS = [
   {
@@ -60,6 +62,23 @@ const TOOLS = [
     }
   },
   {
+    name: 'list_stores',
+    description: 'List Microsoft Merchant Center stores associated with the customer account. Use this to find the store_id needed for the list_products tool.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        customer_id: {
+          type: 'string',
+          description: 'Customer (manager) ID. Uses default from BING_ADS_CUSTOMER_ID when omitted.'
+        },
+        account_id: {
+          type: 'string',
+          description: 'Account ID. Uses default from BING_ADS_ACCOUNT_ID when omitted.'
+        }
+      }
+    }
+  },
+  {
     name: 'query',
     description: 'Query Microsoft Advertising account structure — campaigns, ad groups, keywords, and ads. Returns configuration and settings (names, statuses, budgets, bids, match types), not performance metrics. Use the report tool for impressions, clicks, spend, and conversions.',
     inputSchema: {
@@ -88,7 +107,7 @@ const TOOLS = [
         },
         campaign_type: {
           type: 'string',
-          description: 'Campaign type filter (e.g. "Search", "Shopping", "PerformanceMax"). Omit to return all types.'
+          description: 'Campaign type filter. Defaults to Search, Shopping, DynamicSearchAds, Audience, and PerformanceMax when omitted. Comma-separated for multiple types (e.g. "Search", "Search,Shopping"). Pass "Hotel" or "App" explicitly if needed.'
         }
       },
       required: ['entity']
@@ -173,6 +192,47 @@ const TOOLS = [
       },
       required: ['operations']
     }
+  },
+  {
+    name: 'get_editorial_reasons',
+    description: 'Get editorial rejection reasons for disapproved ads or keywords. Returns specific policy violations, affected countries, and the offending terms for each entity. Use after finding entities with editorial_status "Disapproved" via the query tool.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        account_id: {
+          type: 'string',
+          description: 'Account ID (uses BING_ADS_ACCOUNT_ID when omitted)'
+        },
+        customer_id: {
+          type: 'string',
+          description: 'Customer ID (uses BING_ADS_CUSTOMER_ID when omitted)'
+        },
+        entity_type: {
+          type: 'string',
+          enum: ['Ad', 'Keyword'],
+          description: 'Type of entity to get editorial reasons for'
+        },
+        entity_ids: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              entity_id: {
+                type: 'string',
+                description: 'The ad or keyword ID'
+              },
+              ad_group_id: {
+                type: 'string',
+                description: 'The parent ad group ID'
+              }
+            },
+            required: ['entity_id', 'ad_group_id']
+          },
+          description: 'Array of entity ID + ad group ID pairs (max 1000)'
+        }
+      },
+      required: ['entity_type', 'entity_ids']
+    }
   }
 ];
 
@@ -213,12 +273,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     return listProducts(params);
   }
 
+  if (name === 'list_stores') {
+    return listStores(params);
+  }
+
   if (name === 'report') {
     return report(params);
   }
 
   if (name === 'mutate') {
     return mutate(params);
+  }
+
+  if (name === 'get_editorial_reasons') {
+    return getEditorialReasons(params);
   }
 
   throw new Error(`Unknown tool: ${name}`);

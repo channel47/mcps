@@ -147,7 +147,7 @@ describe('getAccessToken', () => {
     );
   });
 
-  test('throws on non-ok response with error_description', async () => {
+  test('throws on non-ok response with error code only (no description leak)', async () => {
     global.fetch = async () => jsonResponse(
       { error: 'invalid_grant', error_description: 'Refresh token revoked' },
       { ok: false, status: 400 }
@@ -157,7 +157,7 @@ describe('getAccessToken', () => {
 
     await assert.rejects(
       () => getAccessToken(),
-      /Refresh token revoked/
+      /invalid_grant/
     );
   });
 

@@ -133,7 +133,7 @@ function buildReportRequest(params, accountId) {
       Aggregation: aggregation,
       Columns: columns,
       Scope: {
-        AccountIds: [String(accountId)]
+        AccountIds: [Number(accountId)]
       },
       Time: {
         PredefinedTime: dateRange
@@ -165,7 +165,7 @@ async function pollForCompletion(
     if (status === 'Success') {
       const downloadUrl = pollResult?.ReportRequestStatus?.ReportDownloadUrl;
       if (!downloadUrl) {
-        throw new Error(`Report ${reportRequestId} completed without ReportDownloadUrl`);
+        return null;
       }
       return downloadUrl;
     }
@@ -184,7 +184,17 @@ async function pollForCompletion(
   throw new Error(`Report generation timed out for request ${reportRequestId}`);
 }
 
+const ALLOWED_DOWNLOAD_HOSTS = [
+  '.api.bingads.microsoft.com',
+  '.api.ads.microsoft.com'
+];
+
 async function defaultDownloadReport(downloadUrl) {
+  const parsed = new URL(downloadUrl);
+  if (!ALLOWED_DOWNLOAD_HOSTS.some((h) => parsed.hostname.endsWith(h))) {
+    throw new Error('Report download URL does not match expected Microsoft Advertising domain');
+  }
+
   const response = await fetch(downloadUrl, { method: 'GET' });
   if (!response.ok) {
     throw new Error(`Report download failed (${response.status})`);
@@ -220,9 +230,26 @@ export async function report(params = {}, dependencies = {}) {
       { sleepFn, pollIntervalMs, timeoutMs }
     );
 
+    if (!downloadUrl) {
+      return formatSuccess({
+        summary: `Report completed but returned no data for the given parameters`,
+        data: [],
+        metadata: {
+          reportType: params.report_type,
+          reportRequestId,
+          accountId,
+          customerId,
+          rowCount: 0
+        }
+      });
+    }
+
     const zipBuffer = await downloadReport(downloadUrl);
     const csv = extractCsvFromZip(zipBuffer);
-    const limit = typeof params.limit === 'number' ? params.limit : 100;
+    const MAX_REPORT_ROWS = 10000;
+    const limit = typeof params.limit === 'number' && params.limit > 0
+      ? Math.min(params.limit, MAX_REPORT_ROWS)
+      : 100;
     const rows = parseCsv(csv, { limit });
 
     return formatSuccess({

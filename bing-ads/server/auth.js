@@ -34,8 +34,8 @@ async function parseTokenResponse(response) {
   }
 
   if (!response.ok) {
-    const description = payload?.error_description || payload?.error || 'unknown_error';
-    throw new Error(`OAuth token refresh failed (${response.status}): ${description}`);
+    const errorCode = payload?.error || 'unknown_error';
+    throw new Error(`OAuth token refresh failed (${response.status}): ${errorCode}`);
   }
 
   if (!payload?.access_token) {

@@ -163,10 +163,7 @@ describe('validateDateRange', () => {
     );
   });
 
-  test('throws for undefined (default param value)', () => {
-    assert.throws(
-      () => validateDateRange(),
-      /Invalid date_range/
-    );
+  test('accepts default param value (LastSevenDays)', () => {
+    assert.equal(validateDateRange(), 'LastSevenDays');
   });
 });

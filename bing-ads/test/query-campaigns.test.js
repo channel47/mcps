@@ -5,6 +5,7 @@ import {
   MOCK_AD_GROUPS_RESPONSE,
   MOCK_ADS_RESPONSE,
   MOCK_CAMPAIGNS_RESPONSE,
+  MOCK_EDITORIAL_REASONS_RESPONSE,
   MOCK_KEYWORDS_RESPONSE
 } from './fixtures.js';
 
@@ -20,13 +21,12 @@ afterEach(() => {
 });
 
 describe('query', () => {
-  test('routes campaigns query and normalizes result', async () => {
+  test('routes campaigns query with required campaign_type', async () => {
     const { query } = await import('../server/tools/query-campaigns.js');
     let captured = null;
-    const expectedCampaignTypes = 'Search Shopping DynamicSearchAds Audience Hotel PerformanceMax App';
 
     const result = await query(
-      { entity: 'campaigns' },
+      { entity: 'campaigns', campaign_type: 'Search' },
       {
         request: async (url, body, context) => {
           captured = { url, body, context };
@@ -37,10 +37,27 @@ describe('query', () => {
 
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Campaigns/QueryByAccountId'), true);
-    assert.equal(captured.body.AccountId, '123123123');
-    assert.equal(captured.body.CampaignType, expectedCampaignTypes);
+    assert.equal(captured.body.AccountId, 123123123);
+    assert.equal(captured.body.CampaignType, 'Search');
     assert.equal(payload.data[0].id, '333333333');
     assert.equal(payload.data[0].bidding_scheme_type, 'EnhancedCpcBiddingScheme');
+  });
+
+  test('defaults to all campaign types when campaign_type omitted', async () => {
+    const { query } = await import('../server/tools/query-campaigns.js');
+    let captured = null;
+
+    await query(
+      { entity: 'campaigns' },
+      {
+        request: async (url, body, context) => {
+          captured = { url, body, context };
+          return MOCK_CAMPAIGNS_RESPONSE;
+        }
+      }
+    );
+
+    assert.equal(captured.body.CampaignType, 'Search,Shopping,DynamicSearchAds,Audience,PerformanceMax');
   });
 
   test('requires campaign_id for ad_groups entity', async () => {
@@ -71,8 +88,9 @@ describe('query', () => {
 
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Keywords/QueryByAdGroupId'), true);
-    assert.equal(captured.body.AdGroupId, '444444444');
+    assert.equal(captured.body.AdGroupId, 444444444);
     assert.equal(payload.data[0].text, 'channel 47');
+    assert.equal(payload.data[0].editorial_status, 'Active');
     assert.equal(payload.data[0].bid_amount, 2.15);
   });
 
@@ -95,12 +113,17 @@ describe('query', () => {
 
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Ads/QueryByAdGroupId'), true);
-    assert.equal(captured.body.AdGroupId, '444444444');
+    assert.equal(captured.body.AdGroupId, 444444444);
     assert.ok(Array.isArray(captured.body.AdTypes));
     assert.ok(captured.body.AdTypes.includes('ResponsiveSearch'));
     assert.equal(payload.data[0].type, 'ResponsiveSearchAd');
-    assert.deepEqual(payload.data[0].headlines, ['Official Channel 47']);
-    assert.deepEqual(payload.data[0].descriptions, ['Shop direct from Channel 47.']);
+    assert.equal(payload.data[0].editorial_status, 'ActiveLimited');
+    assert.deepEqual(payload.data[0].headlines, [
+      { text: 'Official Channel 47', editorial_status: 'Active' }
+    ]);
+    assert.deepEqual(payload.data[0].descriptions, [
+      { text: 'Shop direct from Channel 47.', editorial_status: 'Disapproved' }
+    ]);
   });
 
   test('includes CampaignType when explicitly provided', async () => {
@@ -127,6 +150,7 @@ describe('query', () => {
     await query(
       {
         entity: 'campaigns',
+        campaign_type: 'Search',
         account_id: '888'
       },
       {

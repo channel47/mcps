@@ -90,11 +90,14 @@ export function parseCsv(csvText, { limit = 100 } = {}) {
     return [];
   }
 
+  const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
   const headers = rows[0];
   const result = rows.slice(1).map((row) => {
-    const item = {};
+    const item = Object.create(null);
     headers.forEach((header, index) => {
-      item[header] = row[index] ?? '';
+      if (!DANGEROUS_KEYS.has(header)) {
+        item[header] = row[index] ?? '';
+      }
     });
     return item;
   });
@@ -144,7 +147,7 @@ export function extractCsvFromZip(zipInput) {
   if (compressionMethod === 0) {
     contentBuffer = compressedData;
   } else if (compressionMethod === 8) {
-    contentBuffer = inflateRawSync(compressedData);
+    contentBuffer = inflateRawSync(compressedData, { maxOutputLength: 50 * 1024 * 1024 });
   } else {
     throw new Error(`Unsupported ZIP compression method: ${compressionMethod}`);
   }

@@ -23,8 +23,6 @@ const ENTITY_RESPONSE_KEYS = {
   ads: 'Ads'
 };
 
-const DEFAULT_CAMPAIGN_TYPES = 'Search Shopping DynamicSearchAds Audience Hotel PerformanceMax App';
-
 function normalizeCampaign(campaign) {
   return {
     id: String(campaign?.Id ?? ''),
@@ -53,6 +51,7 @@ function normalizeKeyword(keyword) {
     text: keyword?.Text ?? '',
     match_type: keyword?.MatchType ?? '',
     status: keyword?.Status ?? '',
+    editorial_status: keyword?.EditorialStatus ?? null,
     bid_amount: keyword?.Bid?.Amount ?? null
   };
 }
@@ -62,14 +61,21 @@ function normalizeAd(ad) {
     id: String(ad?.Id ?? ''),
     type: ad?.Type ?? '',
     status: ad?.Status ?? '',
+    editorial_status: ad?.EditorialStatus ?? null,
     final_urls: ad?.FinalUrls ?? []
   };
 
   if (ad?.Headlines) {
-    base.headlines = ad.Headlines.map((headline) => headline?.Asset?.Text ?? headline?.Text ?? '');
+    base.headlines = ad.Headlines.map((h) => ({
+      text: h?.Asset?.Text ?? h?.Text ?? '',
+      editorial_status: h?.EditorialStatus ?? null
+    }));
   }
   if (ad?.Descriptions) {
-    base.descriptions = ad.Descriptions.map((description) => description?.Asset?.Text ?? description?.Text ?? '');
+    base.descriptions = ad.Descriptions.map((d) => ({
+      text: d?.Asset?.Text ?? d?.Text ?? '',
+      editorial_status: d?.EditorialStatus ?? null
+    }));
   }
 
   if (ad?.TitlePart1) base.title_part_1 = ad.TitlePart1;
@@ -87,10 +93,11 @@ function normalizeAd(ad) {
 
 function buildEntityRequest(entity, params, accountId) {
   if (entity === 'campaigns') {
+    const campaignType = params.campaign_type || 'Search,Shopping,DynamicSearchAds,Audience,PerformanceMax';
     return {
       body: {
-        AccountId: String(accountId),
-        CampaignType: params.campaign_type || DEFAULT_CAMPAIGN_TYPES,
+        AccountId: Number(accountId),
+        CampaignType: campaignType,
         ReturnAdditionalFields: 'BidStrategyId'
       },
       normalize: normalizeCampaign
@@ -101,7 +108,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['campaign_id']);
     return {
       body: {
-        CampaignId: String(params.campaign_id)
+        CampaignId: Number(params.campaign_id)
       },
       normalize: normalizeAdGroup
     };
@@ -111,7 +118,7 @@ function buildEntityRequest(entity, params, accountId) {
     validateRequired(params, ['ad_group_id']);
     return {
       body: {
-        AdGroupId: String(params.ad_group_id)
+        AdGroupId: Number(params.ad_group_id)
       },
       normalize: normalizeKeyword
     };
@@ -120,7 +127,7 @@ function buildEntityRequest(entity, params, accountId) {
   validateRequired(params, ['ad_group_id']);
   return {
     body: {
-      AdGroupId: String(params.ad_group_id),
+      AdGroupId: Number(params.ad_group_id),
       AdTypes: [
         'AppInstall',
         'DynamicSearch',

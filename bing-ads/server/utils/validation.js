@@ -86,7 +86,7 @@ export function validateOneOf(obj, keys, context = 'operation') {
 /**
  * Validate supported Bing reporting date range.
  */
-export function validateDateRange(dateRange = 'Last7Days') {
+export function validateDateRange(dateRange = 'LastSevenDays') {
   if (!PREDEFINED_DATE_RANGES.has(dateRange)) {
     throw new Error(`Invalid date_range: ${dateRange}. Allowed values: ${Array.from(PREDEFINED_DATE_RANGES).join(', ')}`);
   }
