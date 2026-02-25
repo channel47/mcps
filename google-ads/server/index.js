@@ -50,8 +50,11 @@ const server = new Server(
   }
 );
 
+// Read-only mode: set GOOGLE_ADS_READ_ONLY=true to disable mutate tool
+const READ_ONLY = process.env.GOOGLE_ADS_READ_ONLY === 'true';
+
 // Tool definitions
-const TOOLS = [
+const ALL_TOOLS = [
   {
     name: 'list_accounts',
     description: 'List all accessible Google Ads accounts under the authenticated user or MCC. Use this first to find account IDs before running other tools.',
@@ -143,6 +146,12 @@ For IMAGE/VIDEO assets, use 'image_file_path' or 'video_file_path' with absolute
   }
 ];
 
+const TOOLS = READ_ONLY ? ALL_TOOLS.filter(t => t.name !== 'mutate') : ALL_TOOLS;
+
+if (READ_ONLY) {
+  console.error('Read-only mode enabled — mutate tool disabled');
+}
+
 // Register list_tools handler
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return { tools: TOOLS };
@@ -161,6 +170,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await runGaqlQuery(params);
 
       case 'mutate':
+        if (READ_ONLY) throw new Error('Mutate is disabled in read-only mode (GOOGLE_ADS_READ_ONLY=true)');
         return await mutate(params);
 
       default:
