@@ -19,7 +19,7 @@ Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profes
 
 ### For Claude Code Plugin Users
 
-Bundled with the [media-buyer plugin](https://github.com/channel47/channel47). No manual install required.
+Bundled with the [media-buyer plugin](https://github.com/channel47/plugins). No manual install required.
 
 ### Standalone Use
 
@@ -171,7 +171,7 @@ npm test       # runs all server tests
 
 - [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
-- [Media Buyer Plugin](https://github.com/channel47/channel47) — the paid-search toolkit this MCP powers
+- [Media Buyer Plugin](https://github.com/channel47/plugins) — the paid-search toolkit this MCP powers
 - [NPM Package](https://www.npmjs.com/package/@channel47/bing-ads-mcp)
 - [Microsoft Advertising API](https://learn.microsoft.com/en-us/advertising/guides/?view=bingads-13)
 - [X](https://x.com/ctrlswing) / [LinkedIn](https://www.linkedin.com/in/jackson-d-9979a7a0/) / [GitHub](https://github.com/channel47)
