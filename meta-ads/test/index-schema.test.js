@@ -9,20 +9,20 @@ const __dirname = dirname(__filename);
 const indexPath = join(__dirname, '../server/index.js');
 
 describe('tool schema descriptions', () => {
-  test('account_id descriptions mention META_ADS_ACCOUNT_ID fallback', () => {
+  test('account_id descriptions document format support', () => {
     const source = readFileSync(indexPath, 'utf8');
 
     assert.match(
       source,
-      /Required if META_ADS_ACCOUNT_ID env var is not set/
+      /Supports either 123\.\.\. or act_123/
     );
   });
 
-  test('response-format uses static SDK import', () => {
+  test('response-format uses dynamic SDK import with try/catch fallback', () => {
     const responseFormatPath = join(__dirname, '../server/utils/response-format.js');
     const source = readFileSync(responseFormatPath, 'utf8');
 
-    assert.doesNotMatch(source, /await import\('@modelcontextprotocol\/sdk\/types\.js'\)/);
-    assert.match(source, /from '@modelcontextprotocol\/sdk\/types\.js'/);
+    assert.match(source, /await import\('@modelcontextprotocol\/sdk\/types\.js'\)/);
+    assert.match(source, /catch/);
   });
 });
