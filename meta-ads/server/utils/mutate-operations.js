@@ -76,7 +76,10 @@ export function buildApiRequest(operation, accountId) {
     return {
       method: 'POST',
       path: `/${withActPrefix(accountId)}/${parentPath}`,
-      params: { ...operation.params }
+      params: {
+        status: 'PAUSED',
+        ...operation.params
+      }
     };
   }
 

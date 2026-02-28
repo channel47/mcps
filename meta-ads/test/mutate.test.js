@@ -24,24 +24,96 @@ afterEach(() => {
 });
 
 describe('mutate - dry run', () => {
-  test('defaults to dry_run=true and returns request preview', async () => {
-    const result = await mutate({
-      operations: [
-        {
-          entity: 'campaign',
-          action: 'create',
-          params: {
-            name: 'Campaign A'
+  test('sends validate_only execution_options to Meta API', async () => {
+    const calls = [];
+
+    const result = await mutate(
+      {
+        operations: [
+          {
+            entity: 'campaign',
+            action: 'create',
+            params: {
+              name: 'Campaign A'
+            }
           }
+        ]
+      },
+      {
+        request: async (path, params, options) => {
+          calls.push({ path, params, options });
+          return { success: true };
         }
-      ]
-    });
+      }
+    );
 
     const body = parseResult(result);
     assert.equal(body.success, true);
     assert.equal(body.metadata.dryRun, true);
-    assert.equal(body.data.length, 1);
-    assert.equal(body.data[0].path, '/act_1234567890/campaigns');
+    assert.equal(body.metadata.serverValidated, true);
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0].params.execution_options, ['validate_only', 'include_recommendations']);
+  });
+
+  test('reports invalid operations from server-side validation', async () => {
+    const result = await mutate(
+      {
+        operations: [
+          {
+            entity: 'campaign',
+            action: 'create',
+            params: {
+              name: 'Campaign A'
+            }
+          }
+        ]
+      },
+      {
+        request: async () => {
+          throw new Error('Invalid targeting spec');
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(body.metadata.dryRun, true);
+    assert.equal(body.metadata.invalidCount, 1);
+    assert.equal(body.data[0].valid, false);
+    assert.match(body.data[0].error, /Invalid targeting spec/);
+  });
+
+  test('validates delete/pause/enable operations client-side only', async () => {
+    const calls = [];
+
+    const result = await mutate(
+      {
+        operations: [
+          {
+            entity: 'campaign',
+            action: 'delete',
+            id: '9001'
+          },
+          {
+            entity: 'campaign',
+            action: 'pause',
+            id: '9002'
+          }
+        ]
+      },
+      {
+        request: async (path, params, options) => {
+          calls.push({ path, params, options });
+          return { success: true };
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(calls.length, 0);
+    assert.equal(body.data[0].note, 'delete validated client-side only');
+    assert.equal(body.data[1].note, 'pause validated client-side only');
   });
 
   test('returns validation errors for invalid operations', async () => {

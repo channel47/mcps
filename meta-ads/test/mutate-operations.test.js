@@ -65,6 +65,38 @@ describe('buildApiRequest', () => {
     assert.equal(request.params.name, 'Campaign A');
   });
 
+  test('defaults status to PAUSED on create', () => {
+    const request = buildApiRequest(
+      {
+        entity: 'campaign',
+        action: 'create',
+        params: {
+          name: 'Campaign A'
+        }
+      },
+      '12345'
+    );
+
+    assert.equal(request.params.status, 'PAUSED');
+    assert.equal(request.params.name, 'Campaign A');
+  });
+
+  test('explicit status overrides PAUSED default on create', () => {
+    const request = buildApiRequest(
+      {
+        entity: 'campaign',
+        action: 'create',
+        params: {
+          name: 'Campaign B',
+          status: 'ACTIVE'
+        }
+      },
+      '12345'
+    );
+
+    assert.equal(request.params.status, 'ACTIVE');
+  });
+
   test('builds pause action as update with PAUSED status', () => {
     const request = buildApiRequest(
       {

@@ -23,14 +23,79 @@ export async function mutate(params = {}, dependencies = {}) {
     }
 
     if (dryRun) {
-      const preview = buildRequestPreview(operations, accountId);
+      const validationResults = [];
+      let serverValidated = true;
+
+      try {
+        for (let index = 0; index < operations.length; index += 1) {
+          const operation = operations[index];
+          const apiRequest = buildApiRequest(operation, accountId);
+
+          if (operation.action === 'create' || operation.action === 'update') {
+            const validateParams = {
+              ...apiRequest.params,
+              execution_options: ['validate_only', 'include_recommendations']
+            };
+
+            try {
+              const response = await request(apiRequest.path, validateParams, {
+                method: apiRequest.method
+              });
+              validationResults.push({
+                index,
+                entity: operation.entity,
+                action: operation.action,
+                valid: true,
+                recommendations: response?.recommendations || null
+              });
+            } catch (opError) {
+              validationResults.push({
+                index,
+                entity: operation.entity,
+                action: operation.action,
+                valid: false,
+                error: opError.message
+              });
+            }
+          } else {
+            validationResults.push({
+              index,
+              entity: operation.entity,
+              action: operation.action,
+              valid: true,
+              note: `${operation.action} validated client-side only`
+            });
+          }
+        }
+      } catch (outerError) {
+        serverValidated = false;
+        const preview = buildRequestPreview(operations, accountId);
+        return formatSuccess({
+          summary: `Dry run: ${operations.length} operation(s) validated client-side only (server validation failed: ${outerError.message}). ${preview.requests.length} request(s) would be sent.`,
+          data: preview.requests,
+          metadata: {
+            dryRun: true,
+            serverValidated: false,
+            warning: `Server-side validation unavailable: ${outerError.message}`,
+            operationCount: operations.length,
+            apiCallCount: preview.requests.length,
+            accountId
+          }
+        });
+      }
+
+      const validCount = validationResults.filter((r) => r.valid).length;
+      const invalidCount = validationResults.filter((r) => !r.valid).length;
+
       return formatSuccess({
-        summary: `Dry run: ${operations.length} operation(s) validated. ${preview.requests.length} request(s) would be sent. Client-side validation only — no changes applied.`,
-        data: preview.requests,
+        summary: `Dry run: ${operations.length} operation(s) validated server-side via Meta API. ${validCount} valid, ${invalidCount} invalid. No changes applied.`,
+        data: validationResults,
         metadata: {
           dryRun: true,
+          serverValidated: true,
           operationCount: operations.length,
-          apiCallCount: preview.requests.length,
+          validCount,
+          invalidCount,
           accountId
         }
       });

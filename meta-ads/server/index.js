@@ -93,7 +93,7 @@ const ALL_TOOLS = [
   },
   {
     name: 'mutate',
-    description: 'Execute create/update/pause/enable/delete operations for campaign, adset, ad, and audience entities. dry_run defaults to true.',
+    description: 'Execute create/update/pause/enable/delete operations for campaign, adset, ad, and audience entities. dry_run defaults to true and performs server-side validation via Meta validate_only API. Creates default to PAUSED status for safety (pass explicit status to override). DELETE is permanent and unrecoverable — prefer pause or archive. Campaign creates require special_ad_categories (use [] if none apply).',
     inputSchema: {
       type: 'object',
       properties: {
