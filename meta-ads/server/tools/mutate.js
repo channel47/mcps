@@ -1,5 +1,6 @@
 import { metaRequest } from '../http.js';
 import { formatError, formatSuccess } from '../utils/response-format.js';
+import { invalidParamsError } from '../utils/errors.js';
 import { getAccountId } from '../utils/validation.js';
 import {
   buildApiRequest,
@@ -7,6 +8,12 @@ import {
   validateOperations
 } from '../utils/mutate-operations.js';
 
+/**
+ * Validate and execute Meta Ads mutation operations with dry-run safety defaults.
+ * @param {Record<string, unknown>} [params]
+ * @param {{ request?: (path: string, params: Record<string, unknown>, options?: Record<string, unknown>) => Promise<any> }} [dependencies]
+ * @returns {Promise<import('@modelcontextprotocol/sdk/types.js').CallToolResult>}
+ */
 export async function mutate(params = {}, dependencies = {}) {
   const request = dependencies.request || metaRequest;
 
@@ -19,7 +26,7 @@ export async function mutate(params = {}, dependencies = {}) {
     const validationErrors = validateOperations(operations);
     if (validationErrors.length > 0) {
       const errorMessage = validationErrors.map((issue) => `[${issue.index}] ${issue.message}`).join('; ');
-      throw new Error(`Invalid operations: ${errorMessage}`);
+      throw invalidParamsError(`Invalid operations: ${errorMessage}`);
     }
 
     if (dryRun) {
@@ -56,6 +63,10 @@ export async function mutate(params = {}, dependencies = {}) {
                 valid: false,
                 error: opError.message
               });
+
+              if (!partialFailure) {
+                break;
+              }
             }
           } else {
             validationResults.push({

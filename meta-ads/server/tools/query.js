@@ -16,16 +16,60 @@ const ENTITY_PATHS = {
   creatives: 'adcreatives'
 };
 
+function serializeField(field) {
+  if (typeof field === 'string') {
+    return field;
+  }
+
+  if (field && typeof field === 'object' && !Array.isArray(field)) {
+    const [name, nested] = Object.entries(field)[0] || [];
+    if (!name) {
+      return '';
+    }
+    return `${name}{${serializeFields(nested)}}`;
+  }
+
+  return String(field);
+}
+
+// Supports both simple fields ("id") and nested projections ({ creative: [...] }).
+function serializeFields(fields) {
+  if (Array.isArray(fields)) {
+    return fields.map(serializeField).filter(Boolean).join(',');
+  }
+
+  if (fields && typeof fields === 'object') {
+    return serializeField(fields);
+  }
+
+  return String(fields || '');
+}
+
 function getRequestedFields(entity, fields) {
   if (!fields) {
-    return ENTITY_FIELDS[entity].join(',');
+    return serializeFields(ENTITY_FIELDS[entity]);
   }
 
   if (Array.isArray(fields)) {
-    return fields.join(',');
+    return serializeFields(fields);
   }
 
-  return String(fields);
+  return serializeFields(fields);
+}
+
+function getInlineInsightsFields(value) {
+  if (value === undefined || value === null || value === '') {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((field) => String(field).trim()).filter(Boolean);
+  }
+
+  return String(value)
+    .split(',')
+    .map((field) => field.trim())
+    .filter(Boolean);
 }
 
 function getRequestedLimit(limitValue) {
@@ -43,8 +87,17 @@ function getRequestedLimit(limitValue) {
 
 function buildBaseParams(params, entity) {
   const limit = getRequestedLimit(params.limit);
+  let fields = getRequestedFields(entity, params.fields);
+
+  if (entity !== 'insights') {
+    const inlineInsightsFields = getInlineInsightsFields(params.inline_insights_fields);
+    if (inlineInsightsFields.length > 0 && !fields.includes('insights{')) {
+      fields = `${fields},insights{${inlineInsightsFields.join(',')}}`;
+    }
+  }
+
   const queryParams = {
-    fields: getRequestedFields(entity, params.fields),
+    fields,
     limit: String(limit)
   };
 
@@ -66,6 +119,10 @@ function buildBaseParams(params, entity) {
 
     if (params.time_increment !== undefined && params.time_increment !== null) {
       queryParams.time_increment = String(params.time_increment);
+    }
+
+    if (Array.isArray(params.breakdowns) && params.breakdowns.length > 0) {
+      queryParams.breakdowns = params.breakdowns.join(',');
     }
   }
 
@@ -103,6 +160,12 @@ async function fetchAllPages(path, initialParams, requestedLimit, request) {
   return results.slice(0, requestedLimit);
 }
 
+/**
+ * Query Meta Ads entities with cursor pagination and entity-specific parameters.
+ * @param {Record<string, unknown>} [params]
+ * @param {{ request?: (path: string, params: Record<string, unknown>) => Promise<any> }} [dependencies]
+ * @returns {Promise<import('@modelcontextprotocol/sdk/types.js').CallToolResult>}
+ */
 export async function query(params = {}, dependencies = {}) {
   const request = dependencies.request || metaRequest;
 

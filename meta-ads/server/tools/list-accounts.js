@@ -28,15 +28,43 @@ function mapAccount(account) {
   };
 }
 
+async function fetchAllPages(request, path, initialParams = {}) {
+  const rows = [];
+  let after = null;
+
+  while (true) {
+    const pageParams = { ...initialParams };
+    if (after) {
+      pageParams.after = after;
+    }
+
+    const response = await request(path, pageParams);
+    const data = Array.isArray(response?.data) ? response.data : [];
+    rows.push(...data);
+
+    after = response?.paging?.cursors?.after;
+    if (!after) {
+      break;
+    }
+  }
+
+  return rows;
+}
+
+/**
+ * List all accessible ad accounts for the authenticated user token.
+ * @param {{ status?: string }} [params]
+ * @param {{ request?: (path: string, params: Record<string, unknown>) => Promise<any> }} [dependencies]
+ * @returns {Promise<import('@modelcontextprotocol/sdk/types.js').CallToolResult>}
+ */
 export async function listAccounts(params = {}, dependencies = {}) {
   const request = dependencies.request || metaRequest;
 
   try {
-    const response = await request('/me/adaccounts', {
+    const allPages = await fetchAllPages(request, '/me/adaccounts', {
       fields: 'id,name,account_status,currency,timezone_name,business{name}'
     });
-
-    const allAccounts = (response?.data || []).map(mapAccount);
+    const allAccounts = allPages.map(mapAccount);
     const statusFilter = params.status ? String(params.status).toUpperCase() : null;
 
     const filteredAccounts = statusFilter

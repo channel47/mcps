@@ -102,6 +102,55 @@ describe('query', () => {
     assert.ok(timeRange.until);
   });
 
+  test('passes insights breakdowns as comma-separated string', async () => {
+    let capturedParams = null;
+
+    const result = await query(
+      {
+        account_id: '1234567890',
+        entity: 'insights',
+        date_range: 'yesterday',
+        breakdowns: ['age', 'gender']
+      },
+      {
+        request: async (_path, params) => {
+          capturedParams = params;
+          return MOCK_INSIGHTS_RESPONSE;
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(capturedParams.breakdowns, 'age,gender');
+  });
+
+  test('supports inline insights projection on entity queries', async () => {
+    let capturedPath = null;
+    let capturedParams = null;
+
+    const result = await query(
+      {
+        account_id: '1234567890',
+        entity: 'ads',
+        inline_insights_fields: ['spend', 'ctr', 'frequency']
+      },
+      {
+        request: async (path, params) => {
+          capturedPath = path;
+          capturedParams = params;
+          return { data: [] };
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(capturedPath, '/act_1234567890/ads');
+    assert.match(capturedParams.fields, /creative\{/);
+    assert.match(capturedParams.fields, /insights\{spend,ctr,frequency\}/);
+  });
+
   test('serializes filters and sort params', async () => {
     let capturedParams = null;
 

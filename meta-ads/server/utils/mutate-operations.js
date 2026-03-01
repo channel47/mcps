@@ -1,13 +1,20 @@
 import { validateArray, withActPrefix } from './validation.js';
 
-export const SUPPORTED_MUTATE_ENTITIES = ['campaign', 'adset', 'ad', 'audience'];
-export const SUPPORTED_MUTATE_ACTIONS = ['create', 'update', 'pause', 'enable', 'delete'];
+/**
+ * Supported mutate entity identifiers.
+ */
+export const SUPPORTED_MUTATE_ENTITIES = ['campaign', 'adset', 'ad', 'audience', 'creative'];
+/**
+ * Supported mutate action identifiers.
+ */
+export const SUPPORTED_MUTATE_ACTIONS = ['create', 'update', 'pause', 'enable', 'archive', 'delete'];
 
 const CREATE_ENTITY_PATHS = {
   campaign: 'campaigns',
   adset: 'adsets',
   ad: 'ads',
-  audience: 'customaudiences'
+  audience: 'customaudiences',
+  creative: 'adcreatives'
 };
 
 function validateOperationShape(op, index) {
@@ -54,6 +61,11 @@ function validateOperationShape(op, index) {
   return null;
 }
 
+/**
+ * Validate mutate operation array shape and action/entity compatibility.
+ * @param {unknown} operations
+ * @returns {Array<{ index: number, message: string }>}
+ */
 export function validateOperations(operations) {
   validateArray(operations, 'operations');
 
@@ -68,6 +80,12 @@ export function validateOperations(operations) {
   return errors;
 }
 
+/**
+ * Build a Meta Graph API request payload from a single mutate operation.
+ * @param {{ entity: string, action: string, id?: string, params?: Record<string, unknown> }} operation
+ * @param {string} accountId
+ * @returns {{ method: string, path: string, params: Record<string, unknown> }}
+ */
 export function buildApiRequest(operation, accountId) {
   const action = operation.action;
 
@@ -113,6 +131,17 @@ export function buildApiRequest(operation, accountId) {
     };
   }
 
+  if (action === 'archive') {
+    return {
+      method: 'POST',
+      path: `/${operation.id}`,
+      params: {
+        status: 'ARCHIVED',
+        ...(operation.params || {})
+      }
+    };
+  }
+
   return {
     method: 'POST',
     path: `/${operation.id}`,
@@ -120,6 +149,12 @@ export function buildApiRequest(operation, accountId) {
   };
 }
 
+/**
+ * Build a human-readable preview of API requests derived from operations.
+ * @param {Array<{ entity: string, action: string, id?: string, params?: Record<string, unknown> }>} operations
+ * @param {string} accountId
+ * @returns {{ requests: Array<Record<string, unknown>> }}
+ */
 export function buildRequestPreview(operations, accountId) {
   return {
     requests: operations.map((operation, index) => {

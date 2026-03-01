@@ -2,6 +2,10 @@ const REQUIRED_ENV_VARS = ['META_ADS_ACCESS_TOKEN'];
 
 let cachedAccessToken = null;
 
+/**
+ * Validate required environment variables for Meta Ads auth.
+ * @returns {{ valid: boolean, missing: string[] }}
+ */
 export function validateEnvironment() {
   const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
   return {
@@ -10,6 +14,10 @@ export function validateEnvironment() {
   };
 }
 
+/**
+ * Return the configured Meta Ads access token with process-level caching.
+ * @returns {Promise<string>}
+ */
 export async function getAccessToken() {
   if (cachedAccessToken) {
     return cachedAccessToken;
@@ -24,6 +32,9 @@ export async function getAccessToken() {
   return cachedAccessToken;
 }
 
-export function clearAuthCacheForTests() {
+/**
+ * Clear the in-memory token cache (used by tests and local dev flows).
+ */
+export function clearAuthCache() {
   cachedAccessToken = null;
 }

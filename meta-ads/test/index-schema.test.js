@@ -25,4 +25,17 @@ describe('tool schema descriptions', () => {
     assert.match(source, /await import\('@modelcontextprotocol\/sdk\/types\.js'\)/);
     assert.match(source, /catch/);
   });
+
+  test('query schema includes inline insights fields support', () => {
+    const source = readFileSync(indexPath, 'utf8');
+
+    assert.match(source, /inline_insights_fields/);
+  });
+
+  test('mutate description includes creative and archive support', () => {
+    const source = readFileSync(indexPath, 'utf8');
+
+    assert.match(source, /archive/);
+    assert.match(source, /creative entities/);
+  });
 });

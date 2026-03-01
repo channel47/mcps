@@ -58,6 +58,57 @@ describe('listAccounts', () => {
     assert.equal(capturedParams.fields, 'id,name,account_status,currency,timezone_name,business{name}');
   });
 
+  test('follows cursor pagination and aggregates all account pages', async () => {
+    const seenParams = [];
+
+    const result = await listAccounts(
+      {},
+      {
+        request: async (_path, params) => {
+          seenParams.push(params);
+
+          if (params.after === 'cursor_page_2') {
+            return {
+              data: [
+                {
+                  id: 'act_2000000002',
+                  name: 'Account 2',
+                  account_status: 2,
+                  currency: 'USD',
+                  timezone_name: 'America/New_York'
+                }
+              ]
+            };
+          }
+
+          return {
+            data: [
+              {
+                id: 'act_1000000001',
+                name: 'Account 1',
+                account_status: 1,
+                currency: 'USD',
+                timezone_name: 'America/New_York'
+              }
+            ],
+            paging: {
+              cursors: {
+                after: 'cursor_page_2'
+              }
+            }
+          };
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(body.data.length, 2);
+    assert.equal(seenParams.length, 2);
+    assert.equal(seenParams[0].after, undefined);
+    assert.equal(seenParams[1].after, 'cursor_page_2');
+  });
+
   test('throws when API request fails', async () => {
     await assert.rejects(
       () => listAccounts(

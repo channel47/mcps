@@ -37,7 +37,7 @@ const ALL_TOOLS = [
   },
   {
     name: 'query',
-    description: 'Query campaigns, adsets, ads, insights, audiences, or creatives from Meta Graph API.',
+    description: 'Query campaigns, adsets, ads, insights, audiences, or creatives from Meta Graph API, including optional inline nested insights on non-insights entities.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -60,6 +60,16 @@ const ALL_TOOLS = [
           ],
           description: 'Optional fields selection. Defaults to entity-specific presets.'
         },
+        inline_insights_fields: {
+          anyOf: [
+            { type: 'string' },
+            {
+              type: 'array',
+              items: { type: 'string' }
+            }
+          ],
+          description: 'For non-insights entities, append nested insights projection fields (e.g. spend,ctr,frequency)'
+        },
         filters: {
           type: 'array',
           items: { type: 'object' },
@@ -77,6 +87,11 @@ const ALL_TOOLS = [
           anyOf: [{ type: 'string' }, { type: 'integer' }],
           description: 'Insights-only increment (1, 7, monthly, etc.)'
         },
+        breakdowns: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Insights-only dimension breakdowns (e.g. age, gender, publisher_platform)'
+        },
         limit: {
           type: 'integer',
           minimum: 1,
@@ -93,7 +108,7 @@ const ALL_TOOLS = [
   },
   {
     name: 'mutate',
-    description: 'Execute create/update/pause/enable/delete operations for campaign, adset, ad, and audience entities. dry_run defaults to true and performs server-side validation via Meta validate_only API. Creates default to PAUSED status for safety (pass explicit status to override). DELETE is permanent and unrecoverable — prefer pause or archive. Campaign creates require special_ad_categories (use [] if none apply).',
+    description: 'Execute create/update/pause/enable/archive/delete operations for campaign, adset, ad, audience, and creative entities. dry_run defaults to true and performs server-side validation via Meta validate_only API. Creates default to PAUSED status for safety (pass explicit status to override). DELETE is permanent and unrecoverable — prefer pause or archive. Campaign creates require special_ad_categories (use [] if none apply).',
     inputSchema: {
       type: 'object',
       properties: {

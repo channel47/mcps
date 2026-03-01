@@ -44,6 +44,38 @@ describe('resolveInsightsDateRange', () => {
     });
   });
 
+  test('resolves last_14d preset', () => {
+    const result = resolveInsightsDateRange('last_14d', new Date('2026-02-28T12:00:00.000Z'));
+    assert.deepEqual(result, {
+      since: '2026-02-15',
+      until: '2026-02-28'
+    });
+  });
+
+  test('resolves this_month preset', () => {
+    const result = resolveInsightsDateRange('this_month', new Date('2026-02-28T12:00:00.000Z'));
+    assert.deepEqual(result, {
+      since: '2026-02-01',
+      until: '2026-02-28'
+    });
+  });
+
+  test('resolves this_week_mon_today preset', () => {
+    const result = resolveInsightsDateRange('this_week_mon_today', new Date('2026-02-28T12:00:00.000Z'));
+    assert.deepEqual(result, {
+      since: '2026-02-23',
+      until: '2026-02-28'
+    });
+  });
+
+  test('resolves last_quarter preset', () => {
+    const result = resolveInsightsDateRange('last_quarter', new Date('2026-02-28T12:00:00.000Z'));
+    assert.deepEqual(result, {
+      since: '2025-10-01',
+      until: '2025-12-31'
+    });
+  });
+
   test('passes through explicit date object', () => {
     const result = resolveInsightsDateRange({ since: '2026-01-01', until: '2026-01-15' });
     assert.deepEqual(result, {

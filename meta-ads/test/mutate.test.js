@@ -132,6 +132,44 @@ describe('mutate - dry run', () => {
       /Invalid operations/
     );
   });
+
+  test('stops dry-run validation on first failure when partial_failure=false', async () => {
+    let calls = 0;
+
+    const result = await mutate(
+      {
+        operations: [
+          {
+            entity: 'campaign',
+            action: 'create',
+            params: {
+              name: 'Campaign A'
+            }
+          },
+          {
+            entity: 'campaign',
+            action: 'create',
+            params: {
+              name: 'Campaign B'
+            }
+          }
+        ],
+        partial_failure: false
+      },
+      {
+        request: async () => {
+          calls += 1;
+          throw new Error('Validation failed');
+        }
+      }
+    );
+
+    const body = parseResult(result);
+    assert.equal(body.success, true);
+    assert.equal(calls, 1);
+    assert.equal(body.data.length, 1);
+    assert.equal(body.metadata.invalidCount, 1);
+  });
 });
 
 describe('mutate - live execution', () => {

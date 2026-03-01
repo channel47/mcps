@@ -44,13 +44,13 @@ describe('getAccessToken', () => {
   });
 
   test('returns cached token until cache is cleared', async () => {
-    const { getAccessToken, clearAuthCacheForTests } = await importFresh('../server/auth.js');
+    const { getAccessToken, clearAuthCache } = await importFresh('../server/auth.js');
 
     const first = await getAccessToken();
     process.env.META_ADS_ACCESS_TOKEN = 'meta-token-2';
     const second = await getAccessToken();
 
-    clearAuthCacheForTests();
+    clearAuthCache();
     const third = await getAccessToken();
 
     assert.equal(first, 'meta-token-1');

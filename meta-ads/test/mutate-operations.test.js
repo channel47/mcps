@@ -24,6 +24,27 @@ describe('validateOperations', () => {
     assert.equal(errors.length, 0);
   });
 
+  test('accepts creative create operation as valid', () => {
+    const ops = [
+      {
+        entity: 'creative',
+        action: 'create',
+        params: {
+          name: 'Test Creative',
+          object_story_spec: {
+            page_id: '123',
+            link_data: {
+              link: 'https://example.com'
+            }
+          }
+        }
+      }
+    ];
+
+    const errors = validateOperations(ops);
+    assert.equal(errors.length, 0);
+  });
+
   test('returns errors for unsupported entity and missing params', () => {
     const ops = [
       {
@@ -63,6 +84,26 @@ describe('buildApiRequest', () => {
     assert.equal(request.method, 'POST');
     assert.equal(request.path, '/act_12345/campaigns');
     assert.equal(request.params.name, 'Campaign A');
+  });
+
+  test('builds creative create request on adcreatives endpoint', () => {
+    const request = buildApiRequest(
+      {
+        entity: 'creative',
+        action: 'create',
+        params: {
+          name: 'Creative A',
+          object_story_spec: {
+            page_id: '123'
+          }
+        }
+      },
+      '12345'
+    );
+
+    assert.equal(request.method, 'POST');
+    assert.equal(request.path, '/act_12345/adcreatives');
+    assert.equal(request.params.name, 'Creative A');
   });
 
   test('defaults status to PAUSED on create', () => {
@@ -125,6 +166,21 @@ describe('buildApiRequest', () => {
     assert.equal(request.method, 'POST');
     assert.equal(request.path, '/55555');
     assert.equal(request.params.status, 'ACTIVE');
+  });
+
+  test('builds archive action as update with ARCHIVED status', () => {
+    const request = buildApiRequest(
+      {
+        entity: 'ad',
+        action: 'archive',
+        id: '44444'
+      },
+      '12345'
+    );
+
+    assert.equal(request.method, 'POST');
+    assert.equal(request.path, '/44444');
+    assert.equal(request.params.status, 'ARCHIVED');
   });
 
   test('builds delete action request', () => {
