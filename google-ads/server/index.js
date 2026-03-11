@@ -26,7 +26,7 @@ import { getPromptsList, renderPrompt } from './prompts/templates.js';
 
 // Server metadata
 const SERVER_NAME = 'google-ads-mcp';
-const SERVER_VERSION = '1.0.0';
+const SERVER_VERSION = '1.1.1';
 
 // Validate environment on startup
 const { valid, missing } = validateEnvironment();

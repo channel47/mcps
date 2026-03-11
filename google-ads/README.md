@@ -5,7 +5,7 @@
 
 MCP server for Google Ads API access via GAQL (Google Ads Query Language). Built by a practitioner managing 25+ ad accounts daily — not a demo.
 
-Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
+Part of [channel47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## What It Does
 
@@ -50,6 +50,30 @@ google-ads-mcp
 |----------|-------------|
 | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | MCC Account ID (10 digits, no dashes) |
 | `GOOGLE_ADS_DEFAULT_CUSTOMER_ID` | Default account ID for queries |
+| `GOOGLE_ADS_READ_ONLY` | Set to `true` to hide the mutate tool entirely — query and list only |
+
+### MCP Config Example
+
+```json
+{
+  "mcpServers": {
+    "google-ads": {
+      "command": "npx",
+      "args": ["-y", "@channel47/google-ads-mcp@latest"],
+      "env": {
+        "GOOGLE_ADS_DEVELOPER_TOKEN": "your-developer-token",
+        "GOOGLE_ADS_CLIENT_ID": "your-client-id",
+        "GOOGLE_ADS_CLIENT_SECRET": "your-client-secret",
+        "GOOGLE_ADS_REFRESH_TOKEN": "your-refresh-token",
+        "GOOGLE_ADS_LOGIN_CUSTOMER_ID": "1234567890",
+        "GOOGLE_ADS_READ_ONLY": "true"
+      }
+    }
+  }
+}
+```
+
+Remove `GOOGLE_ADS_READ_ONLY` or set to `false` to enable the mutate tool.
 
 ## Tools
 
@@ -241,13 +265,13 @@ npm install    # workspaces — installs all servers
 npm test       # runs all server tests
 ```
 
-~200 lines of server code. 3 core tools. Dry-run by default. OAuth 2.0 with environment-based credentials.
+3 core tools. Dry-run by default. OAuth 2.0 with environment-based credentials.
 
 Pairs with the [media-buyer plugin](https://github.com/channel47/plugins), which adds skills, mutation validation hooks, and GAQL reference docs on top of this server.
 
 ## Links
 
-- [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
+- [channel47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
 - [Media Buyer Plugin](https://github.com/channel47/plugins) — the paid-search toolkit this MCP powers
 - [NPM Package](https://www.npmjs.com/package/@channel47/google-ads-mcp)
