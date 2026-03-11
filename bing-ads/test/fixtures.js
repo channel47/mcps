@@ -113,7 +113,7 @@ export const MOCK_KEYWORDS_RESPONSE = {
   Keywords: [
     {
       Id: 555555555,
-      Text: 'channel 47',
+      Text: 'channel47',
       MatchType: 'Exact',
       Status: 'Active',
       EditorialStatus: 'Active',
@@ -132,10 +132,10 @@ export const MOCK_ADS_RESPONSE = {
       Status: 'Active',
       EditorialStatus: 'ActiveLimited',
       Headlines: [
-        { Asset: { Text: 'Official Channel 47' }, EditorialStatus: 'Active' }
+        { Asset: { Text: 'Official channel47' }, EditorialStatus: 'Active' }
       ],
       Descriptions: [
-        { Asset: { Text: 'Shop direct from Channel 47.' }, EditorialStatus: 'Disapproved' }
+        { Asset: { Text: 'Shop direct from channel47.' }, EditorialStatus: 'Disapproved' }
       ],
       FinalUrls: [
         'https://www.channel47.com'
@@ -172,7 +172,7 @@ export const MOCK_PRODUCTS_RESPONSE = {
       link: 'https://www.channel47.com/products/sku-1',
       price: { value: '19.99', currency: 'USD' },
       availability: 'in stock',
-      brand: 'Channel47',
+      brand: 'channel47',
       imageLink: 'https://www.channel47.com/images/sku-1.jpg'
     }
   ],
@@ -183,7 +183,7 @@ export const MOCK_STORES_RESPONSE = {
   BMCStores: [
     {
       Id: 12345,
-      Name: 'Channel 47 Store',
+      Name: 'channel47 Store',
       StoreUrl: 'https://www.channel47.com',
       IsActive: true,
       HasCatalog: true,
@@ -195,8 +195,8 @@ export const MOCK_STORES_RESPONSE = {
 
 export const SAMPLE_REPORT_CSV = [
   'AccountName,CampaignName,CampaignId,Impressions,Clicks,Spend,Conversions',
-  '"Channel 47","Search - Brand",333333333,1000,120,55.75,12',
-  '"Channel 47","Shopping (US)",444444444,2000,180,78.11,20'
+  '"channel47","Search - Brand",333333333,1000,120,55.75,12',
+  '"channel47","Shopping (US)",444444444,2000,180,78.11,20'
 ].join('\n');
 
 // --- Mutation response fixtures ---

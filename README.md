@@ -1,10 +1,10 @@
-# Channel 47 MCP Servers
+# channel47 MCP Servers
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Open-source MCP servers built from real workflows — paid ads, SEO, image generation, and content.
 
-Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
+Part of [channel47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## Servers
 
@@ -28,7 +28,7 @@ npm test
 
 ## Links
 
-- [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
+- [channel47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
 - [X](https://x.com/ctrlswing) / [LinkedIn](https://www.linkedin.com/in/jackson-d-9979a7a0/) / [GitHub](https://github.com/channel47)
 

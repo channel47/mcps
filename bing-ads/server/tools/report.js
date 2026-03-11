@@ -1,4 +1,4 @@
-import { BING_BASE_URLS, bingRequest } from '../http.js';
+import { BING_BASE_URLS, bingRequest, sleep } from '../http.js';
 import { formatError, formatSuccess } from '../utils/response-format.js';
 import {
   getAccountId,
@@ -101,12 +101,6 @@ const DEFAULT_COLUMNS = {
     'Conversions'
   ]
 };
-
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 function buildReportRequest(params, accountId) {
   validateRequired(params, ['report_type']);

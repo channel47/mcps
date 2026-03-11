@@ -5,7 +5,7 @@
 
 MCP server for Microsoft Advertising (Bing Ads) via REST APIs. Query campaigns, pull performance reports, read Merchant Center product feeds, and mutate entities with dry-run safety built in.
 
-Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
+Part of [channel47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 ## What It Does
 
@@ -169,7 +169,7 @@ npm test       # runs all server tests
 
 ## Links
 
-- [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
+- [channel47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
 - [Media Buyer Plugin](https://github.com/channel47/plugins) — the paid-search toolkit this MCP powers
 - [NPM Package](https://www.npmjs.com/package/@channel47/bing-ads-mcp)

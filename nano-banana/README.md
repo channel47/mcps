@@ -5,7 +5,7 @@
 
 MCP server for AI image generation using Google Gemini models. Free API key, dual-model support, aspect ratio control.
 
-Part of [Channel 47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
+Part of [channel47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
 
 > Also known as "Nano Banana" — the friendly name for this image generation server.
 
@@ -110,7 +110,7 @@ ruff check src/ tests/
 
 ## Links
 
-- [Channel 47](https://channel47.dev) — open-source profession plugins for Claude Code
+- [channel47](https://channel47.dev) — open-source profession plugins for Claude Code
 - [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
 - [PyPI Package](https://pypi.org/project/gemini-image-mcp/)
 - [GitHub Repository](https://github.com/channel47/mcps/tree/main/nano-banana)

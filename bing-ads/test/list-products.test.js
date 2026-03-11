@@ -42,7 +42,7 @@ describe('listProducts', () => {
                 salePrice: { value: '14.99', currency: 'USD' },
                 availability: 'in stock',
                 imageLink: 'https://example.com/images/sku-1.jpg',
-                brand: 'Channel47',
+                brand: 'channel47',
                 customLabel0: 'sale',
                 customLabel2: 'spring',
                 mobileLink: 'https://m.example.com/products/sku-1',

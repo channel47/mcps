@@ -81,7 +81,7 @@ function extractErrorMessage(payload) {
   return payload?.error?.message || payload?.message || 'Unknown Bing Ads API error';
 }
 
-function sleep(ms) {
+export function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });

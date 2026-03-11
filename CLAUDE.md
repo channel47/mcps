@@ -1,4 +1,4 @@
-# Channel 47 MCP Servers
+# channel47 MCP Servers
 
 Standalone MCP servers published independently. npm workspaces monorepo.
 
@@ -20,6 +20,11 @@ npm install          # from repo root
 npm run build        # build all JS/TS servers
 npm run test         # test all JS/TS servers
 ```
+
+## Conventions
+
+- Brand name is lowercase `channel47` everywhere (not `Channel 47` or `Channel47`).
+- Each server can also run tests independently: `cd <server> && npm test`.
 
 ## Gotchas
 

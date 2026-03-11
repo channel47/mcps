@@ -89,7 +89,7 @@ describe('query', () => {
     const payload = JSON.parse(result.content[0].text);
     assert.equal(captured.url.endsWith('/Keywords/QueryByAdGroupId'), true);
     assert.equal(captured.body.AdGroupId, 444444444);
-    assert.equal(payload.data[0].text, 'channel 47');
+    assert.equal(payload.data[0].text, 'channel47');
     assert.equal(payload.data[0].editorial_status, 'Active');
     assert.equal(payload.data[0].bid_amount, 2.15);
   });
@@ -119,10 +119,10 @@ describe('query', () => {
     assert.equal(payload.data[0].type, 'ResponsiveSearchAd');
     assert.equal(payload.data[0].editorial_status, 'ActiveLimited');
     assert.deepEqual(payload.data[0].headlines, [
-      { text: 'Official Channel 47', editorial_status: 'Active' }
+      { text: 'Official channel47', editorial_status: 'Active' }
     ]);
     assert.deepEqual(payload.data[0].descriptions, [
-      { text: 'Shop direct from Channel 47.', editorial_status: 'Disapproved' }
+      { text: 'Shop direct from channel47.', editorial_status: 'Disapproved' }
     ]);
   });
 
