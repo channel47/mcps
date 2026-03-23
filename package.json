@@ -3,11 +3,8 @@
   "private": true,
   "workspaces": [
     "bing-ads",
-    "dataforseo",
     "google-ads",
-    "meta-ads",
-    "nano-banana",
-    "substack"
+    "meta-ads"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
