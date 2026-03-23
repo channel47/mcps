@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "channel47",
+  "description": "Open-source profession plugins for Claude Code — built from real ad accounts and campaigns.",
+  "owner": {
+    "name": "Channel 47",
+    "email": "jackson@channel47.dev"
+  },
+  "plugins": [
+    {
+      "name": "media-buyer",
+      "description": "Query and manage Google Ads, Bing Ads, and Meta Ads accounts with Claude as your media buying copilot.",
+      "version": "7.0.0",
+      "author": {
+        "name": "Jackson Dean",
+        "url": "https://channel47.dev"
+      },
+      "source": "./plugins/media-buyer",
+      "category": "productivity",
+      "homepage": "https://channel47.dev/plugins/media-buyer"
+    }
+  ]
+}

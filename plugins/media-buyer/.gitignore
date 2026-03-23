@@ -1,0 +1,5 @@
+# .mcp.json is intentionally tracked as plugin MCP bundle config.
+reports/
+.pytest_cache/
+.DS_Store
+.worktrees

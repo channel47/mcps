@@ -1,0 +1,22 @@
+{
+  "name": "media-buyer",
+  "version": "7.0.0",
+  "description": "Query and manage Google Ads, Bing Ads, and Meta Ads accounts with Claude as your media buying copilot.",
+  "author": {
+    "name": "Jackson Dean",
+    "url": "https://channel47.dev"
+  },
+  "homepage": "https://channel47.dev/plugins/media-buyer",
+  "repository": "https://github.com/channel47/mcps",
+  "keywords": [
+    "google-ads",
+    "bing-ads",
+    "meta-ads",
+    "microsoft-advertising",
+    "facebook-ads",
+    "media-buying",
+    "ppc",
+    "paid-media"
+  ],
+  "license": "MIT"
+}
