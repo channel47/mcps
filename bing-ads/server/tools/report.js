@@ -178,14 +178,24 @@ async function pollForCompletion(
   throw new Error(`Report generation timed out for request ${reportRequestId}`);
 }
 
-const ALLOWED_DOWNLOAD_HOSTS = [
+const ALLOWED_DOWNLOAD_HOST_SUFFIXES = [
   '.api.bingads.microsoft.com',
-  '.api.ads.microsoft.com'
+  '.api.ads.microsoft.com',
+  '.bingads.microsoft.com',
+  '.ads.microsoft.com',
+  '.microsoft.com',
+  '.azureedge.net',
+  '.azurefd.net',
+  '.blob.core.windows.net'
 ];
+
+function isAllowedDownloadHost(hostname) {
+  return ALLOWED_DOWNLOAD_HOST_SUFFIXES.some((suffix) => hostname.endsWith(suffix));
+}
 
 async function defaultDownloadReport(downloadUrl) {
   const parsed = new URL(downloadUrl);
-  if (!ALLOWED_DOWNLOAD_HOSTS.some((h) => parsed.hostname.endsWith(h))) {
+  if (parsed.protocol !== 'https:' || !isAllowedDownloadHost(parsed.hostname)) {
     throw new Error('Report download URL does not match expected Microsoft Advertising domain');
   }
 

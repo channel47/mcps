@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { buildSingleFileZip, SAMPLE_REPORT_CSV } from './fixtures.js';
 
 const ORIGINAL_ENV = { ...process.env };
+const ORIGINAL_FETCH = globalThis.fetch;
 
 beforeEach(() => {
   process.env.BING_ADS_ACCOUNT_ID = '123123123';
@@ -12,6 +13,7 @@ beforeEach(() => {
 
 afterEach(() => {
   process.env = { ...ORIGINAL_ENV };
+  globalThis.fetch = ORIGINAL_FETCH;
 });
 
 describe('report', () => {
@@ -108,6 +110,66 @@ describe('report', () => {
         }
       ),
       /timed out/
+    );
+  });
+
+  test('accepts Microsoft CDN download URLs', async () => {
+    const { report } = await import('../server/tools/report.js');
+
+    globalThis.fetch = async (url) => {
+      assert.equal(url, 'https://reports.azureedge.net/download/report.zip');
+      return {
+        ok: true,
+        arrayBuffer: async () => buildSingleFileZip('campaign.csv', SAMPLE_REPORT_CSV),
+        status: 200
+      };
+    };
+
+    const result = await report(
+      { report_type: 'campaign', limit: 1 },
+      {
+        request: async (url) => {
+          if (url.endsWith('/GenerateReport/Submit')) {
+            return { ReportRequestId: 'request-cdn' };
+          }
+          return {
+            ReportRequestStatus: {
+              Status: 'Success',
+              ReportDownloadUrl: 'https://reports.azureedge.net/download/report.zip'
+            }
+          };
+        },
+        sleepFn: async () => {}
+      }
+    );
+
+    const payload = JSON.parse(result.content[0].text);
+    assert.equal(payload.success, true);
+    assert.equal(payload.data.length, 1);
+  });
+
+  test('rejects non-Microsoft download URLs', async () => {
+    const { report } = await import('../server/tools/report.js');
+
+    await assert.rejects(
+      () => report(
+        { report_type: 'campaign' },
+        {
+          request: async (url) => {
+            if (url.endsWith('/GenerateReport/Submit')) {
+              return { ReportRequestId: 'request-bad-host' };
+            }
+            return {
+              ReportRequestStatus: {
+                Status: 'Success',
+                ReportDownloadUrl: 'https://evil.example/report.zip'
+              }
+            };
+          },
+          sleepFn: async () => {}
+        }
+      ),
+      /does not match expected Microsoft Advertising domain/
     );
   });
 });
