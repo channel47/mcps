@@ -2,6 +2,7 @@ import { BING_BASE_URLS } from '../http.js';
 import { validateArray, validateOneOf } from './validation.js';
 
 const ACTION_KEYS = ['create', 'update', 'remove'];
+const SHOPPING_CAMPAIGN_TYPE = 'Shopping';
 
 const ENTITY_CONFIG = {
   campaigns: {
@@ -66,6 +67,103 @@ const ENTITY_CONFIG = {
 };
 
 const SUPPORTED_ENTITIES = Object.keys(ENTITY_CONFIG);
+
+function isPlainObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeBiddingSchemeType(type) {
+  if (typeof type !== 'string' || type.length === 0) {
+    return type;
+  }
+
+  return type.endsWith('BiddingScheme')
+    ? type.slice(0, -'BiddingScheme'.length)
+    : type;
+}
+
+function normalizeSettingType(type) {
+  if (typeof type !== 'string' || type.length === 0) {
+    return type;
+  }
+
+  if (type === 'Shopping') {
+    return 'ShoppingSetting';
+  }
+
+  return type.endsWith('Setting') ? type : `${type}Setting`;
+}
+
+function getShoppingSetting(settings) {
+  if (!Array.isArray(settings)) {
+    return null;
+  }
+
+  return settings.find((setting) => {
+    if (!isPlainObject(setting)) {
+      return false;
+    }
+
+    const normalizedType = normalizeSettingType(setting.Type);
+    return normalizedType === 'ShoppingSetting';
+  }) || null;
+}
+
+function validateCampaignBody(body, action, index, errors) {
+  if (body.CampaignType !== SHOPPING_CAMPAIGN_TYPE) {
+    return;
+  }
+
+  const shoppingSetting = getShoppingSetting(body.Settings);
+
+  if (!shoppingSetting) {
+    errors.push({
+      index,
+      message: 'Shopping campaign operations require Settings with a ShoppingSetting object'
+    });
+    return;
+  }
+
+  if (action === 'create') {
+    if (shoppingSetting.StoreId === undefined || shoppingSetting.StoreId === null || shoppingSetting.StoreId === '') {
+      errors.push({
+        index,
+        message: 'Shopping campaign create requires ShoppingSetting.StoreId'
+      });
+    }
+
+    if (shoppingSetting.Priority === undefined || shoppingSetting.Priority === null || shoppingSetting.Priority === '') {
+      errors.push({
+        index,
+        message: 'Shopping campaign create requires ShoppingSetting.Priority'
+      });
+    }
+  }
+}
+
+function transformCampaignForApi(campaign) {
+  const transformed = { ...campaign };
+
+  if (isPlainObject(transformed.BiddingScheme)) {
+    transformed.BiddingScheme = { ...transformed.BiddingScheme };
+    transformed.BiddingScheme.Type = normalizeBiddingSchemeType(transformed.BiddingScheme.Type);
+  }
+
+  if (Array.isArray(transformed.Settings)) {
+    transformed.Settings = transformed.Settings.map((setting) => {
+      if (!isPlainObject(setting)) {
+        return setting;
+      }
+
+      return {
+        ...setting,
+        Type: normalizeSettingType(setting.Type)
+      };
+    });
+  }
+
+  return transformed;
+}
 
 /**
  * Extract the action type from an operation object.
@@ -133,6 +231,10 @@ export function validateOperations(ops, accountId) {
     }
     if (action === 'remove' && op.entity !== 'negative_keywords' && !body.Id) {
       errors.push({ index: i, message: `"remove" requires Id field` });
+    }
+
+    if (op.entity === 'campaigns') {
+      validateCampaignBody(body, action, i, errors);
     }
   }
 
@@ -295,6 +397,9 @@ function buildCreateUpdateRequest(group, accountId, config, endpoint) {
     // Transform ad objects into the format the Bing Ads REST API expects
     if (entity === 'ads') {
       return transformAdForApi(cleaned);
+    }
+    if (entity === 'campaigns') {
+      return transformCampaignForApi(cleaned);
     }
     return cleaned;
   });
