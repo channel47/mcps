@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Open-source MCP servers built from real workflows — paid ads management and reporting.
+Open-source MCP servers built from real paid media workflows.
 
-Part of [channel47](https://channel47.dev), the open-source ecosystem of profession plugins for Claude Code. [Get the newsletter](https://channel47.dev/subscribe) for weekly skill breakdowns from production use.
+Part of [channel47](https://channel47.dev), agentic marketing systems marketers can run. Pair these connectors with the standalone [`channel47/skills`](https://github.com/channel47/skills) repo for media buying and creative strategy workflows.
 
 ## Servers
 
@@ -26,8 +26,9 @@ npm test
 
 ## Links
 
-- [channel47](https://channel47.dev) — open-source profession plugins for Claude Code
-- [Build Notes](https://channel47.dev/subscribe) — weekly skill breakdowns from production use
+- [channel47](https://channel47.dev) — agentic marketing systems marketers can run
+- [Skills](https://github.com/channel47/skills) — standalone marketing skills
+- [Build Notes](https://channel47.dev/subscribe) — weekly build breakdowns
 - [X](https://x.com/ctrlswing) / [LinkedIn](https://www.linkedin.com/in/jackson-d-9979a7a0/) / [GitHub](https://github.com/channel47)
 
 ## License
