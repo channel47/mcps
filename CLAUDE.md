@@ -7,7 +7,10 @@ Standalone MCP servers published independently. npm workspaces monorepo.
 ```
 bing-ads/        # Microsoft Advertising (Bing Ads) API (npm: @channel47/bing-ads-mcp)
 google-ads/      # Google Ads API via GAQL (npm: @channel47/google-ads-mcp)
+linkedin-ads/    # LinkedIn Marketing API (npm: @channel47/linkedin-ads-mcp)
 meta-ads/        # Meta Ads (Facebook/Instagram) API (npm: @channel47/meta-ads-mcp)
+pinterest-ads/   # Pinterest Ads API v5 (npm: @channel47/pinterest-ads-mcp)
+tiktok-ads/      # TikTok for Business API (npm: @channel47/tiktok-ads-mcp)
 ```
 
 ## Commands

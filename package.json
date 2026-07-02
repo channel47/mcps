@@ -4,7 +4,10 @@
   "workspaces": [
     "bing-ads",
     "google-ads",
-    "meta-ads"
+    "linkedin-ads",
+    "meta-ads",
+    "pinterest-ads",
+    "tiktok-ads"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
