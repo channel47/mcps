@@ -1,7 +1,7 @@
-#!/usr/bin/env node
 import { getCustomerClient } from '../auth.js';
 import { formatSuccess, formatError } from '../utils/response-format.js';
 import { normalizeOperations } from '../utils/operation-transform.js';
+import { getCustomerId } from '../utils/validation.js';
 
 /**
  * Execute mutation operations using GoogleAdsService.Mutate
@@ -16,15 +16,17 @@ import { normalizeOperations } from '../utils/operation-transform.js';
  */
 export async function mutate(params) {
   const {
-    customer_id = process.env.GOOGLE_ADS_CUSTOMER_ID,
     operations,
     partial_failure = true,
     dry_run = true
   } = params;
 
   // Validate required parameters
-  if (!customer_id) {
-    return formatError(new Error('customer_id is required (either as parameter or GOOGLE_ADS_CUSTOMER_ID env var)'));
+  let customer_id;
+  try {
+    customer_id = getCustomerId(params);
+  } catch (error) {
+    return formatError(error);
   }
 
   if (!operations || !Array.isArray(operations) || operations.length === 0) {

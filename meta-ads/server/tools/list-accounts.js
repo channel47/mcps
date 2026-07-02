@@ -1,4 +1,5 @@
 import { metaRequest } from '../http.js';
+import { fetchAllPages } from '../utils/paginate.js';
 import { formatError, formatSuccess } from '../utils/response-format.js';
 import { normalizeAccountId } from '../utils/validation.js';
 
@@ -26,29 +27,6 @@ function mapAccount(account) {
     timezone_name: account?.timezone_name || null,
     business_name: account?.business?.name || null
   };
-}
-
-async function fetchAllPages(request, path, initialParams = {}) {
-  const rows = [];
-  let after = null;
-
-  while (true) {
-    const pageParams = { ...initialParams };
-    if (after) {
-      pageParams.after = after;
-    }
-
-    const response = await request(path, pageParams);
-    const data = Array.isArray(response?.data) ? response.data : [];
-    rows.push(...data);
-
-    after = response?.paging?.cursors?.after;
-    if (!after) {
-      break;
-    }
-  }
-
-  return rows;
 }
 
 /**

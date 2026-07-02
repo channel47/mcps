@@ -1,20 +1,6 @@
 import { invalidParamsError } from './errors.js';
 
 /**
- * Validate that required fields are present on the params object.
- */
-export function validateRequired(params, fields) {
-  const missing = fields.filter((field) => {
-    const value = params[field];
-    return value === undefined || value === null || value === '';
-  });
-
-  if (missing.length > 0) {
-    throw invalidParamsError(`Missing required parameter${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}`);
-  }
-}
-
-/**
  * Validate an enum value against an allowed set.
  */
 export function validateEnum(value, allowed, paramName = 'value') {
@@ -57,14 +43,13 @@ export function withActPrefix(accountId) {
 }
 
 /**
- * Resolve account ID from params or environment with optional act_ formatting.
+ * Resolve account ID from params or environment, normalized without act_ prefix.
  */
-export function getAccountId(params = {}, { prefixed = false } = {}) {
+export function getAccountId(params = {}) {
   const accountId = params.account_id || process.env.META_ADS_ACCOUNT_ID;
   if (!accountId) {
     throw invalidParamsError('account_id parameter or META_ADS_ACCOUNT_ID environment variable required');
   }
 
-  const normalized = normalizeAccountId(accountId);
-  return prefixed ? withActPrefix(normalized) : normalized;
+  return normalizeAccountId(accountId);
 }

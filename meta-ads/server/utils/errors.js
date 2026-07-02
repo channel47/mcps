@@ -1,7 +1,4 @@
-/**
- * Create an error with an MCP classification hint.
- */
-export function createTypedError(code, message) {
+function createTypedError(code, message) {
   const error = new Error(message);
   error.mcpCode = code;
   return error;
@@ -12,11 +9,4 @@ export function createTypedError(code, message) {
  */
 export function invalidParamsError(message) {
   return createTypedError('InvalidParams', message);
-}
-
-/**
- * Create an InternalError typed error.
- */
-export function internalError(message) {
-  return createTypedError('InternalError', message);
 }

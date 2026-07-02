@@ -15,7 +15,6 @@
   "scripts": {
     "start": "node server/index.js",
     "test": "node --test *.test.js test/*.test.js",
-    "lint": "eslint server/",
     "prepublishOnly": "npm test"
   },
   "keywords": [

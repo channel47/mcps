@@ -15,8 +15,7 @@ export const PROMPT_TEMPLATES = {
 2. Compare spend, clicks, and conversions for anomalies.
 3. Flag campaigns with spend > 0 and conversions = 0.
 4. Highlight campaigns with sudden drop in impressions.
-5. Return top 3 issues and recommended next action.`,
-    requiredTools: ['report', 'query']
+5. Return top 3 issues and recommended next action.`
   },
   search_term_analysis: {
     name: 'search_term_analysis',
@@ -40,8 +39,7 @@ export const PROMPT_TEMPLATES = {
 2. Find high-spend terms with zero conversions.
 3. Group waste into negative keyword themes.
 4. Identify converting queries that should be promoted to keywords.
-5. Output two lists: recommended negatives and recommended additions.`,
-    requiredTools: ['report']
+5. Output two lists: recommended negatives and recommended additions.`
   },
   campaign_comparison: {
     name: 'campaign_comparison',
@@ -59,14 +57,9 @@ export const PROMPT_TEMPLATES = {
 2. Rank campaigns by spend, conversions, and efficiency.
 3. Identify over-spending campaigns with weak conversion rate.
 4. Identify high-performing campaigns to scale.
-5. Return a prioritized action plan (pause, adjust budget, expand).`,
-    requiredTools: ['report', 'query']
+5. Return a prioritized action plan (pause, adjust budget, expand).`
   }
 };
-
-export function getPromptDefinition(name) {
-  return PROMPT_TEMPLATES[name] || null;
-}
 
 export function getPromptsList() {
   return Object.values(PROMPT_TEMPLATES).map((prompt) => ({

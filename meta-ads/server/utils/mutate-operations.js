@@ -17,6 +17,12 @@ const CREATE_ENTITY_PATHS = {
   creative: 'adcreatives'
 };
 
+const STATUS_BY_ACTION = {
+  pause: 'PAUSED',
+  enable: 'ACTIVE',
+  archive: 'ARCHIVED'
+};
+
 function validateOperationShape(op, index) {
   if (!op || typeof op !== 'object' || Array.isArray(op)) {
     return { index, message: 'Operation must be an object' };
@@ -109,43 +115,14 @@ export function buildApiRequest(operation, accountId) {
     };
   }
 
-  if (action === 'pause') {
-    return {
-      method: 'POST',
-      path: `/${operation.id}`,
-      params: {
-        status: 'PAUSED',
-        ...(operation.params || {})
-      }
-    };
-  }
-
-  if (action === 'enable') {
-    return {
-      method: 'POST',
-      path: `/${operation.id}`,
-      params: {
-        status: 'ACTIVE',
-        ...(operation.params || {})
-      }
-    };
-  }
-
-  if (action === 'archive') {
-    return {
-      method: 'POST',
-      path: `/${operation.id}`,
-      params: {
-        status: 'ARCHIVED',
-        ...(operation.params || {})
-      }
-    };
-  }
-
+  const status = STATUS_BY_ACTION[action];
   return {
     method: 'POST',
     path: `/${operation.id}`,
-    params: { ...(operation.params || {}) }
+    params: {
+      ...(status ? { status } : {}),
+      ...(operation.params || {})
+    }
   };
 }
 

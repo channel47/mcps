@@ -40,11 +40,12 @@ function createMcpStyleError(code, message) {
 export function formatError(error) {
   const message = error?.message || String(error) || 'Unknown error';
 
-  if (message.includes('required') || message.includes('Invalid')) {
-    throw createMcpStyleError('InvalidParams', message);
-  }
-
-  if (message.includes('Unauthorized') || message.includes('access_token')) {
+  if (
+    message.includes('required')
+    || message.includes('Invalid')
+    || message.includes('Unauthorized')
+    || message.includes('access_token')
+  ) {
     throw createMcpStyleError('InvalidParams', message);
   }
 

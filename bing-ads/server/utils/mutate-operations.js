@@ -74,6 +74,16 @@ export function getActionType(op) {
   return validateOneOf(op, ACTION_KEYS, 'operation');
 }
 
+function computeParentId(op, body, config, accountId) {
+  if (op.entity === 'negative_keywords') {
+    return `${body.entity_type}:${body.entity_id}`;
+  }
+  if (config.parentField) {
+    return String(body[config.parentField]);
+  }
+  return String(accountId);
+}
+
 /**
  * Validate all operations and return errors (if any).
  */
@@ -128,11 +138,8 @@ export function validateOperations(ops, accountId) {
     }
 
     // Validate Id for update/remove (except negative_keywords remove uses entity_id)
-    if (action === 'update' && op.entity !== 'negative_keywords' && !body.Id) {
-      errors.push({ index: i, message: `"update" requires Id field` });
-    }
-    if (action === 'remove' && op.entity !== 'negative_keywords' && !body.Id) {
-      errors.push({ index: i, message: `"remove" requires Id field` });
+    if ((action === 'update' || action === 'remove') && op.entity !== 'negative_keywords' && !body.Id) {
+      errors.push({ index: i, message: `"${action}" requires Id field` });
     }
   }
 
@@ -143,15 +150,7 @@ export function validateOperations(ops, accountId) {
       const action = getActionType(op);
       const body = op[action];
       const config = ENTITY_CONFIG[op.entity];
-
-      let parentId;
-      if (op.entity === 'negative_keywords') {
-        parentId = `${body.entity_type}:${body.entity_id}`;
-      } else if (config.parentField) {
-        parentId = String(body[config.parentField]);
-      } else {
-        parentId = String(accountId);
-      }
+      const parentId = computeParentId(op, body, config, accountId);
 
       const key = `${op.entity}|${action}|${parentId}`;
       counts.set(key, (counts.get(key) || 0) + 1);
@@ -178,15 +177,7 @@ export function groupOperations(ops, accountId) {
     const action = getActionType(op);
     const body = op[action];
     const config = ENTITY_CONFIG[op.entity];
-
-    let parentId;
-    if (op.entity === 'negative_keywords') {
-      parentId = `${body.entity_type}:${body.entity_id}`;
-    } else if (config.parentField) {
-      parentId = String(body[config.parentField]);
-    } else {
-      parentId = String(accountId);
-    }
+    const parentId = computeParentId(op, body, config, accountId);
 
     const key = `${op.entity}|${action}|${parentId}`;
     if (!groupMap.has(key)) {
@@ -283,6 +274,14 @@ function transformAdForApi(ad) {
   return transformed;
 }
 
+// Seed a request body with the account or parent entity key expected by the API.
+function seedParentKey(entity, items, config, accountId) {
+  if (entity === 'campaigns') {
+    return { AccountId: Number(accountId) };
+  }
+  return { [config.parentApiKey]: Number(items[0].body[config.parentField]) };
+}
+
 function buildCreateUpdateRequest(group, accountId, config, endpoint) {
   const { entity, items } = group;
 
@@ -299,15 +298,7 @@ function buildCreateUpdateRequest(group, accountId, config, endpoint) {
     return cleaned;
   });
 
-  const requestBody = {};
-
-  if (entity === 'campaigns') {
-    requestBody.AccountId = Number(accountId);
-  } else {
-    const parentValue = items[0].body[config.parentField];
-    requestBody[config.parentApiKey] = Number(parentValue);
-  }
-
+  const requestBody = seedParentKey(entity, items, config, accountId);
   requestBody[config.bodyCollectionKey] = entities;
 
   return {
@@ -321,15 +312,7 @@ function buildDeleteRequest(group, accountId, config, endpoint) {
   const { entity, items } = group;
 
   const ids = items.map(({ body }) => Number(body.Id));
-  const requestBody = {};
-
-  if (entity === 'campaigns') {
-    requestBody.AccountId = Number(accountId);
-  } else {
-    const parentValue = items[0].body[config.parentField];
-    requestBody[config.parentApiKey] = Number(parentValue);
-  }
-
+  const requestBody = seedParentKey(entity, items, config, accountId);
   requestBody[config.deleteIdsKey] = ids;
 
   return {
@@ -392,6 +375,40 @@ function buildNegativeKeywordRequest(group, endpoint) {
   };
 }
 
+function indexErrors(errors) {
+  const errorsByIndex = new Map();
+  for (const err of errors) {
+    errorsByIndex.set(err.Index, err);
+  }
+  return errorsByIndex;
+}
+
+// Map batch positions back to original operation indices, marking failures from
+// positional errors. When idArray is provided (create actions), successful
+// results include the created entity id.
+function mapIndicesToResults(indices, errorsByIndex, idArray = null) {
+  return indices.map((originalIndex, position) => {
+    const error = errorsByIndex.get(position);
+    if (error) {
+      return {
+        index: originalIndex,
+        success: false,
+        error: { code: error.Code, message: error.Message, error_code: error.ErrorCode }
+      };
+    }
+
+    if (idArray) {
+      return {
+        index: originalIndex,
+        success: true,
+        id: idArray[position] != null ? String(idArray[position]) : null
+      };
+    }
+
+    return { index: originalIndex, success: true };
+  });
+}
+
 /**
  * Normalize an API response back into per-operation results, mapped to original indices.
  */
@@ -401,103 +418,26 @@ export function normalizeResponse(response, entity, action, indices) {
   }
 
   const config = ENTITY_CONFIG[entity];
-  const partialErrors = response?.PartialErrors || [];
-  const errorsByIndex = new Map();
-  for (const err of partialErrors) {
-    errorsByIndex.set(err.Index, err);
-  }
+  const errorsByIndex = indexErrors(response?.PartialErrors || []);
 
   if (action === 'create') {
-    const idArray = response?.[config.idArrayKey] || [];
-    return indices.map((originalIndex, position) => {
-      const error = errorsByIndex.get(position);
-      if (error) {
-        return {
-          index: originalIndex,
-          success: false,
-          error: { code: error.Code, message: error.Message, error_code: error.ErrorCode }
-        };
-      }
-      return {
-        index: originalIndex,
-        success: true,
-        id: idArray[position] != null ? String(idArray[position]) : null
-      };
-    });
+    return mapIndicesToResults(indices, errorsByIndex, response?.[config.idArrayKey] || []);
   }
 
   // update or remove — success inferred from absence of error at position
-  return indices.map((originalIndex, position) => {
-    const error = errorsByIndex.get(position);
-    if (error) {
-      return {
-        index: originalIndex,
-        success: false,
-        error: { code: error.Code, message: error.Message, error_code: error.ErrorCode }
-      };
-    }
-    return { index: originalIndex, success: true };
-  });
+  return mapIndicesToResults(indices, errorsByIndex);
 }
 
 function normalizeNegativeKeywordResponse(response, action, indices) {
   if (action === 'create') {
-    const nestedErrors = response?.NestedPartialErrors || [];
-    const idGroups = response?.NegativeKeywordIds || [];
-
-    // Flatten IDs across entity groups
-    const allIds = [];
-    for (const group of idGroups) {
-      const ids = group?.Ids || [];
-      for (const id of ids) {
-        allIds.push(id);
-      }
-    }
-
-    // Flatten nested errors
-    const errorsByIndex = new Map();
-    for (const nestedErr of nestedErrors) {
-      const batchErrors = nestedErr?.BatchErrors || [];
-      for (const err of batchErrors) {
-        errorsByIndex.set(err.Index, err);
-      }
-    }
-
-    return indices.map((originalIndex, position) => {
-      const error = errorsByIndex.get(position);
-      if (error) {
-        return {
-          index: originalIndex,
-          success: false,
-          error: { code: error.Code, message: error.Message, error_code: error.ErrorCode }
-        };
-      }
-      return {
-        index: originalIndex,
-        success: true,
-        id: allIds[position] != null ? String(allIds[position]) : null
-      };
-    });
+    // Flatten IDs across entity groups and errors across nested batches
+    const allIds = (response?.NegativeKeywordIds || []).flatMap((group) => group?.Ids || []);
+    const nestedErrors = (response?.NestedPartialErrors || []).flatMap((nested) => nested?.BatchErrors || []);
+    return mapIndicesToResults(indices, indexErrors(nestedErrors), allIds);
   }
 
   // remove — only partial errors
-  const partialErrors = response?.PartialErrors || [];
-  const errorsByIndex = new Map();
-  for (const err of partialErrors) {
-    errorsByIndex.set(err.Index, err);
-  }
-
-  return indices.map((originalIndex, position) => {
-    const error = errorsByIndex.get(position);
-    if (error) {
-      return {
-        index: originalIndex,
-        success: false,
-        error: { code: error.Code, message: error.Message, error_code: error.ErrorCode }
-      };
-    }
-    return { index: originalIndex, success: true };
-  });
+  return mapIndicesToResults(indices, indexErrors(response?.PartialErrors || []));
 }
 
 /**
