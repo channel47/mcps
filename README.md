@@ -13,6 +13,9 @@ Part of [channel47](https://channel47.dev), agentic marketing systems marketers 
 | [google-ads](./google-ads/) | Google Ads API via GAQL | Node.js | `npm i @channel47/google-ads-mcp` |
 | [bing-ads](./bing-ads/) | Microsoft Advertising campaigns, reporting, and mutations | Node.js | `npm i -g @channel47/bing-ads-mcp` |
 | [meta-ads](./meta-ads/) | Meta (Facebook/Instagram) Ads API | Node.js | `npm i @channel47/meta-ads-mcp` |
+| [linkedin-ads](./linkedin-ads/) | LinkedIn Marketing API campaigns, analytics, and mutations | Node.js | `npm i @channel47/linkedin-ads-mcp` |
+| [tiktok-ads](./tiktok-ads/) | TikTok for Business API campaigns, reporting, and mutations | Node.js | `npm i @channel47/tiktok-ads-mcp` |
+| [pinterest-ads](./pinterest-ads/) | Pinterest Ads API v5 campaigns, analytics, and mutations | Node.js | `npm i @channel47/pinterest-ads-mcp` |
 
 Each server has its own README with setup instructions and API details.
 

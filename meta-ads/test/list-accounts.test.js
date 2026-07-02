@@ -25,7 +25,7 @@ describe('listAccounts', () => {
     assert.equal(first.id, '1234567890');
     assert.equal(first.status, 'ACTIVE');
     assert.equal(first.currency, 'USD');
-    assert.equal(first.business_name, 'Channel47 LLC');
+    assert.equal(first.business_name, 'channel47 LLC');
   });
 
   test('applies status filter', async () => {

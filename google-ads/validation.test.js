@@ -1,86 +1,37 @@
-import { test, describe } from 'node:test';
+import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
-import { validateRequired, validateEnum, validateDateRange, blockMutations } from './server/utils/validation.js';
+import { getCustomerId, blockMutations } from './server/utils/validation.js';
 
-describe('validateRequired', () => {
-  test('passes with all required fields', () => {
-    assert.doesNotThrow(() => {
-      validateRequired({ a: 'value', b: 123 }, ['a', 'b']);
-    });
+const originalCustomerId = process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
+
+describe('getCustomerId', () => {
+  beforeEach(() => {
+    delete process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
   });
 
-  test('throws on missing field', () => {
+  afterEach(() => {
+    if (originalCustomerId === undefined) {
+      delete process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
+    } else {
+      process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID = originalCustomerId;
+    }
+  });
+
+  test('prefers customer_id param', () => {
+    process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID = '9999999999';
+    assert.strictEqual(getCustomerId({ customer_id: '1234567890' }), '1234567890');
+  });
+
+  test('falls back to GOOGLE_ADS_DEFAULT_CUSTOMER_ID env var', () => {
+    process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID = '9999999999';
+    assert.strictEqual(getCustomerId({}), '9999999999');
+  });
+
+  test('throws when neither param nor env var is set', () => {
     assert.throws(
-      () => validateRequired({ a: 'value' }, ['a', 'b']),
-      /Missing required parameter.*b/
+      () => getCustomerId({}),
+      /customer_id parameter or GOOGLE_ADS_DEFAULT_CUSTOMER_ID environment variable required/
     );
-  });
-
-  test('throws on empty string', () => {
-    assert.throws(
-      () => validateRequired({ a: '' }, ['a']),
-      /Missing required parameter.*a/
-    );
-  });
-
-  test('throws on null', () => {
-    assert.throws(
-      () => validateRequired({ a: null }, ['a']),
-      /Missing required parameter/
-    );
-  });
-});
-
-describe('validateEnum', () => {
-  test('passes with valid value', () => {
-    assert.doesNotThrow(() => {
-      validateEnum('ENABLED', ['ENABLED', 'PAUSED', 'REMOVED'], 'status');
-    });
-  });
-
-  test('throws on invalid value', () => {
-    assert.throws(
-      () => validateEnum('INVALID', ['ENABLED', 'PAUSED'], 'status'),
-      /Invalid status.*INVALID.*Allowed values/
-    );
-  });
-});
-
-describe('validateDateRange', () => {
-  test('returns dates for LAST_7_DAYS', () => {
-    const result = validateDateRange('LAST_7_DAYS');
-    assert.ok(result.start);
-    assert.ok(result.end);
-    assert.match(result.start, /^\d{4}-\d{2}-\d{2}$/);
-    assert.match(result.end, /^\d{4}-\d{2}-\d{2}$/);
-  });
-
-  test('returns dates for LAST_30_DAYS', () => {
-    const result = validateDateRange('LAST_30_DAYS');
-    const start = new Date(result.start);
-    const end = new Date(result.end);
-    const diff = (end - start) / (1000 * 60 * 60 * 24);
-    assert.ok(diff >= 29 && diff <= 31);
-  });
-
-  test('throws on invalid range', () => {
-    assert.throws(
-      () => validateDateRange('INVALID_RANGE'),
-      /Invalid date_range/
-    );
-  });
-
-  test('CUSTOM requires start and end dates', () => {
-    assert.throws(
-      () => validateDateRange('CUSTOM'),
-      /start_date and end_date required/
-    );
-  });
-
-  test('CUSTOM works with dates', () => {
-    const result = validateDateRange('CUSTOM', '2024-01-01', '2024-01-31');
-    assert.strictEqual(result.start, '2024-01-01');
-    assert.strictEqual(result.end, '2024-01-31');
   });
 });
 

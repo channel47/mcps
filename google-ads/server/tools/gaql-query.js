@@ -1,6 +1,6 @@
 import { getCustomerClient } from '../auth.js';
 import { formatSuccess, formatError } from '../utils/response-format.js';
-import { blockMutations } from '../utils/validation.js';
+import { blockMutations, getCustomerId } from '../utils/validation.js';
 
 /**
  * Execute raw GAQL queries for advanced users
@@ -37,11 +37,7 @@ export async function runGaqlQuery(params = {}) {
       );
     }
 
-    // Get customer ID
-    const customerId = params.customer_id || process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
-    if (!customerId) {
-      throw new Error('customer_id parameter or GOOGLE_ADS_DEFAULT_CUSTOMER_ID environment variable required');
-    }
+    const customerId = getCustomerId(params);
 
     // Validate and enforce limit
     const requestedLimit = params.limit || 100;

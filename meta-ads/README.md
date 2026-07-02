@@ -2,7 +2,7 @@
 
 MCP server for Meta Ads (Facebook + Instagram) using the Graph API (`v25.0`).
 
-This server exposes three tools expected by Channel47 Meta workflows:
+This server exposes three tools expected by channel47 Meta workflows:
 
 - `list_accounts`
 - `query`

@@ -17,7 +17,7 @@ export function formatSuccess({ summary, data, metadata = {} }) {
         summary,
         data,
         metadata: {
-          rowCount: data.length,
+          rowCount: Array.isArray(data) ? data.length : undefined,
           warnings: [],
           ...metadata
         }

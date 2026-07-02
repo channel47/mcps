@@ -1,4 +1,5 @@
 import { metaRequest } from '../http.js';
+import { fetchAllPages } from '../utils/paginate.js';
 import { formatError, formatSuccess } from '../utils/response-format.js';
 import {
   ENTITY_FIELDS,
@@ -46,15 +47,7 @@ function serializeFields(fields) {
 }
 
 function getRequestedFields(entity, fields) {
-  if (!fields) {
-    return serializeFields(ENTITY_FIELDS[entity]);
-  }
-
-  if (Array.isArray(fields)) {
-    return serializeFields(fields);
-  }
-
-  return serializeFields(fields);
+  return serializeFields(fields || ENTITY_FIELDS[entity]);
 }
 
 function getInlineInsightsFields(value) {
@@ -85,8 +78,7 @@ function getRequestedLimit(limitValue) {
   return Math.min(Math.floor(parsed), 1000);
 }
 
-function buildBaseParams(params, entity) {
-  const limit = getRequestedLimit(params.limit);
+function buildBaseParams(params, entity, limit) {
   let fields = getRequestedFields(entity, params.fields);
 
   if (entity !== 'insights') {
@@ -129,37 +121,6 @@ function buildBaseParams(params, entity) {
   return queryParams;
 }
 
-async function fetchAllPages(path, initialParams, requestedLimit, request) {
-  let after = null;
-  const results = [];
-
-  while (results.length < requestedLimit) {
-    const pageParams = {
-      ...initialParams,
-      limit: String(Math.min(requestedLimit, 1000))
-    };
-
-    if (after) {
-      pageParams.after = after;
-    }
-
-    const response = await request(path, pageParams);
-    const data = Array.isArray(response?.data) ? response.data : [];
-    results.push(...data);
-
-    if (results.length >= requestedLimit) {
-      break;
-    }
-
-    after = response?.paging?.cursors?.after;
-    if (!after) {
-      break;
-    }
-  }
-
-  return results.slice(0, requestedLimit);
-}
-
 /**
  * Query Meta Ads entities with cursor pagination and entity-specific parameters.
  * @param {Record<string, unknown>} [params]
@@ -177,8 +138,8 @@ export async function query(params = {}, dependencies = {}) {
     const requestedLimit = getRequestedLimit(params.limit);
     const path = `/act_${accountId}/${ENTITY_PATHS[entity]}`;
 
-    const queryParams = buildBaseParams(params, entity);
-    const rows = await fetchAllPages(path, queryParams, requestedLimit, request);
+    const queryParams = buildBaseParams(params, entity, requestedLimit);
+    const rows = await fetchAllPages(request, path, queryParams, requestedLimit);
 
     return formatSuccess({
       summary: `Returned ${rows.length} ${entity} row${rows.length === 1 ? '' : 's'}`,

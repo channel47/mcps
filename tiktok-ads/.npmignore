@@ -1,0 +1,28 @@
+# Development files
+.git
+.gitignore
+.github/
+.vscode/
+.idea/
+
+# Tests
+test/
+*.test.js
+coverage/
+
+# Documentation (keep only README, LICENSE, CHANGELOG)
+docs/
+GETTING_STARTED.md
+
+# Build artifacts
+dist/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db

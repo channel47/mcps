@@ -21,8 +21,7 @@ export const PROMPT_TEMPLATES = {
 2. Flag ads with high frequency and declining CTR.
 3. Group fatigued ads by campaign/ad set.
 4. Identify top creatives to refresh first by wasted spend.
-5. Return prioritized creative refresh recommendations with rationale.`,
-    requiredTools: ['query']
+5. Return prioritized creative refresh recommendations with rationale.`
   },
   audience_overlap_check: {
     name: 'audience_overlap_check',
@@ -40,8 +39,7 @@ export const PROMPT_TEMPLATES = {
 2. Pull custom audiences in the account.
 3. Identify segments likely competing in auction (same geo/age/interests/lookalikes).
 4. Flag exclusions that are missing and likely to cause overlap.
-5. Return concrete audience restructuring suggestions.`,
-    requiredTools: ['query']
+5. Return concrete audience restructuring suggestions.`
   },
   spend_pacing_check: {
     name: 'spend_pacing_check',
@@ -65,14 +63,9 @@ export const PROMPT_TEMPLATES = {
 2. Compare current spend velocity to available daily/lifetime budgets.
 3. Flag campaigns underpacing and overpacing.
 4. Highlight campaigns spending with weak conversion signals.
-5. Return top pacing issues and recommended budget actions.`,
-    requiredTools: ['query']
+5. Return top pacing issues and recommended budget actions.`
   }
 };
-
-export function getPromptDefinition(name) {
-  return PROMPT_TEMPLATES[name] || null;
-}
 
 export function getPromptsList() {
   return Object.values(PROMPT_TEMPLATES).map((prompt) => ({

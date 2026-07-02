@@ -560,24 +560,6 @@ describe('Error Handling', () => {
     );
   });
 
-  test('handles missing required params', async () => {
-    const { validateRequired } = await import('../server/utils/validation.js');
-
-    assert.throws(
-      () => validateRequired({}, ['customer_id']),
-      /Missing required parameter.*customer_id/
-    );
-  });
-
-  test('handles invalid enum values', async () => {
-    const { validateEnum } = await import('../server/utils/validation.js');
-
-    assert.throws(
-      () => validateEnum('INVALID', ['ENABLED', 'PAUSED'], 'status'),
-      /Invalid status.*INVALID/
-    );
-  });
-
   test('handles missing customer ID', async () => {
     const { getCustomerId } = await import('../server/utils/validation.js');
 

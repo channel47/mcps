@@ -1,10 +1,7 @@
 import { getAccessToken } from './auth.js';
 import { invalidParamsError } from './utils/errors.js';
 
-/**
- * Base URL for all Meta Graph API requests used by this server.
- */
-export const META_BASE_URL = 'https://graph.facebook.com/v25.0';
+const META_BASE_URL = 'https://graph.facebook.com/v25.0';
 const RATE_LIMIT_ERROR_CODES = new Set([17, 32]);
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_RATE_LIMIT_SLEEP_MS = 60_000;

@@ -26,11 +26,11 @@ export const PROMPT_TEMPLATES = {
 Just flag issues, don't deep-dive unless something's wrong.
 
 To complete this check:
-- Use get_performance with date_range YESTERDAY to see yesterday's metrics
-- Use budget_pacing to check for campaigns limited by budget
-- Compare yesterday's spend to the 7-day average
-- Flag any enabled campaigns with zero impressions or spend`,
-    requiredTools: ['get_performance', 'budget_pacing']
+- Use the query tool with GAQL against the campaign resource (segments.date DURING YESTERDAY) for yesterday's metrics
+- Query campaign_budget fields (amount_micros, recommended_budget_amount_micros) to check budget limits
+- Compare yesterday's spend to the 7-day average (segments.date DURING LAST_7_DAYS)
+- Flag any enabled campaigns with zero impressions or spend
+- Read the gaql://reference resource if you need field names`
   },
 
   // Phase 3 prompt - fully functional
@@ -58,13 +58,13 @@ To complete this check:
 Keep the analysis actionable and prioritized by impact.
 
 To complete this review:
-- Use get_performance with level=campaign for current and prior period
-- Use search_terms_report and find_wasted_spend to identify waste
-- Use quality_score_analysis with max_quality_score=5 to find QS issues
-- Use budget_pacing to check for limited campaigns
-- Use shopping_product_status to check feed health
-- Use performance_by_dimension with dimension=device for device analysis`,
-    requiredTools: ['get_performance', 'search_terms_report', 'find_wasted_spend', 'quality_score_analysis', 'budget_pacing', 'shopping_product_status', 'performance_by_dimension']
+- Use the query tool with GAQL against campaign for current and prior period metrics
+- Query search_term_view for terms with high cost and zero conversions
+- Query keyword_view with ad_group_criterion.quality_info fields to find QS < 5 keywords
+- Query campaign_budget fields to check for budget-limited campaigns
+- Query shopping_product (status, issues) to check feed health
+- Query campaign with segments.device for device analysis
+- Read the gaql://reference resource if you need field names`
   },
 
   negative_keyword_mining: {
@@ -97,8 +97,7 @@ To complete this review:
 4. Flag any search terms that might be worth adding as keywords instead
 5. After I approve, add the negatives at the appropriate level (campaign vs ad group)
 
-Be aggressive on clear waste, conservative on ambiguous terms.`,
-    requiredTools: ['search_terms_report', 'find_wasted_spend', 'add_negative_keywords']
+Be aggressive on clear waste, conservative on ambiguous terms.`
   },
 
   shopping_optimization: {
@@ -123,12 +122,11 @@ Be aggressive on clear waste, conservative on ambiguous terms.`,
 Focus on actionable changes with clear expected impact.
 
 To complete this analysis:
-- Use shopping_performance with segment_by=product_item_id for product-level data
-- Use shopping_performance with segment_by=brand for brand analysis
-- Use shopping_performance with segment_by=category_l1 for category analysis
-- Use shopping_product_status to check for disapprovals and feed issues
-- Use get_performance with level=campaign and campaign_types=SHOPPING for overall Shopping performance`,
-    requiredTools: ['shopping_performance', 'shopping_product_status', 'get_performance']
+- Use the query tool with GAQL against shopping_performance_view segmented by segments.product_item_id for product-level data
+- Query shopping_performance_view with segments.product_brand for brand analysis
+- Query shopping_performance_view with segments.product_category_level1 for category analysis
+- Query shopping_product (status, issues) to check for disapprovals and feed issues
+- Query campaign filtered to advertising_channel_type = 'SHOPPING' for overall Shopping performance`
   },
 
   competitive_analysis: {
@@ -151,22 +149,12 @@ To complete this analysis:
 6. Recommend strategy adjustments based on performance gaps
 
 To complete this analysis:
-- Use get_performance with level=campaign including impression share metrics to identify positioning
-- Use quality_score_analysis to determine if positioning issues are quality-related vs bid-related
-- Use performance_by_dimension with dimension=hour_of_day for time-based patterns
-- Use performance_by_dimension with dimension=day_of_week for day-based patterns`,
-    requiredTools: ['quality_score_analysis', 'performance_by_dimension', 'get_performance']
+- Use the query tool with GAQL against campaign including impression share metrics (search_impression_share, search_budget_lost_impression_share, search_rank_lost_impression_share)
+- Query keyword_view with ad_group_criterion.quality_info fields to determine if positioning issues are quality-related vs bid-related
+- Query campaign with segments.hour for time-based patterns
+- Query campaign with segments.day_of_week for day-based patterns`
   }
 };
-
-/**
- * Get prompt definition by name
- * @param {string} name - Prompt name
- * @returns {Object|null} Prompt definition or null if not found
- */
-export function getPromptDefinition(name) {
-  return PROMPT_TEMPLATES[name] || null;
-}
 
 /**
  * Render a prompt template with provided arguments

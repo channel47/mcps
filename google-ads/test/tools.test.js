@@ -37,7 +37,7 @@ afterEach(() => {
 // ============================================
 
 describe('GAQL Templates', () => {
-  test('buildQuery substitutes date parameters', async () => {
+  test('buildQuery substitutes filters into LIST_ACCOUNTS', async () => {
     const { buildQuery, TEMPLATES } = await import('../server/utils/gaql-templates.js');
 
     const query = buildQuery(TEMPLATES.LIST_ACCOUNTS, { filters: '' });
@@ -54,129 +54,23 @@ describe('GAQL Templates', () => {
     });
   });
 
-  test('TEMPLATES contains required templates', async () => {
-    const { TEMPLATES } = await import('../server/utils/gaql-templates.js');
-
-    const requiredTemplates = [
-      'LIST_ACCOUNTS',
-      'CAMPAIGN_PERFORMANCE',
-      'AD_GROUP_PERFORMANCE',
-      'KEYWORD_PERFORMANCE',
-      'SEARCH_TERMS',
-      'QUALITY_SCORE_ANALYSIS'
-    ];
-
-    requiredTemplates.forEach(name => {
-      assert.ok(TEMPLATES[name], `Missing template: ${name}`);
-    });
-  });
-
-  test('buildQuery substitutes metrics array', async () => {
+  test('buildQuery includes provided filter clause', async () => {
     const { buildQuery, TEMPLATES } = await import('../server/utils/gaql-templates.js');
 
-    const query = buildQuery(TEMPLATES.CAMPAIGN_PERFORMANCE, {
-      metrics: ['cost_micros', 'clicks'],
-      dates: { start: '2024-01-01', end: '2024-01-31' },
-      filters: '',
-      orderBy: 'metrics.cost_micros',
-      limit: 50
+    const query = buildQuery(TEMPLATES.LIST_ACCOUNTS, {
+      filters: "WHERE customer_client.status = 'ENABLED'"
     });
 
-    assert.ok(query.includes('metrics.cost_micros'));
-    assert.ok(query.includes('metrics.clicks'));
-  });
-});
-
-// ============================================
-// Query Validator Tests
-// ============================================
-
-describe('Query Validator', () => {
-  test('validateQuery returns valid for correct query', async () => {
-    const { validateQuery } = await import('../server/utils/query-validator.js');
-
-    const result = validateQuery('SELECT campaign.id FROM campaign');
-    assert.strictEqual(result.valid, true);
-    assert.strictEqual(result.errors.length, 0);
+    assert.ok(query.includes("WHERE customer_client.status = 'ENABLED'"));
   });
 
-  test('validateQuery detects missing SELECT', async () => {
-    const { validateQuery } = await import('../server/utils/query-validator.js');
+  test('buildQuery throws on unreplaced template variables', async () => {
+    const { buildQuery } = await import('../server/utils/gaql-templates.js');
 
-    const result = validateQuery('campaign.id FROM campaign');
-    assert.strictEqual(result.valid, false);
-    assert.ok(result.errors.some(e => e.toLowerCase().includes('select')));
-  });
-
-  test('validateQuery detects missing FROM', async () => {
-    const { validateQuery } = await import('../server/utils/query-validator.js');
-
-    const result = validateQuery('SELECT campaign.id');
-    assert.strictEqual(result.valid, false);
-    assert.ok(result.errors.some(e => e.toLowerCase().includes('from')));
-  });
-
-  test('validateQuery handles complex valid queries', async () => {
-    const { validateQuery } = await import('../server/utils/query-validator.js');
-
-    const query = `
-      SELECT
-        campaign.id,
-        campaign.name,
-        metrics.cost_micros
-      FROM campaign
-      WHERE campaign.status = 'ENABLED'
-      ORDER BY metrics.cost_micros DESC
-      LIMIT 100
-    `;
-
-    const result = validateQuery(query);
-    assert.strictEqual(result.valid, true);
-  });
-});
-
-// ============================================
-// Validation Utility Integration Tests
-// ============================================
-
-describe('Validation utilities integration', () => {
-  test('full validation flow works', async () => {
-    const {
-      validateRequired,
-      validateEnum,
-      validateDateRange,
-      getCustomerId,
-      buildCampaignFilter
-    } = await import('../server/utils/validation.js');
-
-    const params = {
-      customer_id: '1234567890',
-      level: 'campaign',
-      date_range: 'LAST_7_DAYS',
-      campaign_ids: ['111', '222']
-    };
-
-    // Validate required
-    assert.doesNotThrow(() => validateRequired(params, ['level']));
-
-    // Validate enum
-    assert.doesNotThrow(() =>
-      validateEnum(params.level, ['campaign', 'ad_group', 'keyword'], 'level')
+    assert.throws(
+      () => buildQuery('SELECT campaign.id FROM campaign WHERE segments.date = {{DATE}}'),
+      /Unreplaced template variables.*\{\{DATE\}\}/
     );
-
-    // Parse dates
-    const dates = validateDateRange(params.date_range);
-    assert.ok(dates.start);
-    assert.ok(dates.end);
-
-    // Get customer ID
-    const customerId = getCustomerId(params);
-    assert.strictEqual(customerId, '1234567890');
-
-    // Build filter
-    const filter = buildCampaignFilter(params.campaign_ids);
-    assert.ok(filter.includes('111'));
-    assert.ok(filter.includes('222'));
   });
 });
 

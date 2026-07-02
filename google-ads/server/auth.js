@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { GoogleAdsApi } from 'google-ads-api';
 
 // Required environment variables for OAuth 2.0 authentication
