@@ -22,7 +22,7 @@ export const MOCK_ADVERTISER_INFO_RESPONSE = {
         status: 'STATUS_ENABLE',
         currency: 'USD',
         timezone: 'America/Los_Angeles',
-        company: 'Channel47 LLC',
+        company: 'channel47 LLC',
         country: 'US',
         create_time: 1700000000
       },

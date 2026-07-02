@@ -7,7 +7,7 @@ export const MOCK_LIST_ACCOUNTS_RESPONSE = {
       currency: 'USD',
       timezone_name: 'America/Los_Angeles',
       business: {
-        name: 'Channel47 LLC'
+        name: 'channel47 LLC'
       }
     },
     {

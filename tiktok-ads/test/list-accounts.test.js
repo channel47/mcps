@@ -58,7 +58,7 @@ describe('listAccounts', () => {
     assert.equal(first.status, 'STATUS_ENABLE');
     assert.equal(first.currency, 'USD');
     assert.equal(first.timezone, 'America/Los_Angeles');
-    assert.equal(first.company, 'Channel47 LLC');
+    assert.equal(first.company, 'channel47 LLC');
   });
 
   test('requests expected advertiser info fields', async () => {
