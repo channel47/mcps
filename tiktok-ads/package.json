@@ -1,0 +1,47 @@
+{
+  "name": "@channel47/tiktok-ads-mcp",
+  "version": "0.1.0",
+  "description": "TikTok Ads MCP Server - Query and mutate TikTok for Business ads data via the Business API",
+  "main": "server/index.js",
+  "bin": {
+    "tiktok-ads-mcp": "server/index.js"
+  },
+  "type": "module",
+  "files": [
+    "server/**/*.js",
+    "server/**/*.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test *.test.js test/*.test.js",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tiktok-ads",
+    "tiktok-for-business",
+    "analytics",
+    "advertising",
+    "claude"
+  ],
+  "author": "channel47",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/channel47/mcps.git",
+    "directory": "tiktok-ads"
+  },
+  "bugs": {
+    "url": "https://github.com/channel47/mcps/issues"
+  },
+  "homepage": "https://github.com/channel47/mcps/tree/main/tiktok-ads#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
