@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/channel47/mcps/tree/main/linkedin-ads#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "engines": {
     "node": ">=18.0.0"
