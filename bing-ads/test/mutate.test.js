@@ -158,6 +158,41 @@ describe('mutate — live execution', () => {
     assert.equal(capturedRequest.context.method, 'POST');
   });
 
+  test('normalizes shopping campaign create payload before request dispatch', async () => {
+    let capturedRequest = null;
+
+    const result = await mutate(
+      {
+        operations: [
+          {
+            entity: 'campaigns',
+            create: {
+              Name: 'Shopping Campaign',
+              BudgetType: 'DailyBudgetStandard',
+              DailyBudget: 30,
+              CampaignType: 'Shopping',
+              BiddingScheme: { Type: 'EnhancedCpcBiddingScheme' },
+              Settings: [{ Type: 'Shopping', StoreId: 3510637, Priority: 0, SalesCountryCode: 'US' }]
+            }
+          }
+        ],
+        dry_run: false
+      },
+      {
+        request: async (url, body, context) => {
+          capturedRequest = { url, body, context };
+          return MOCK_CAMPAIGNS_ADD_RESPONSE;
+        }
+      }
+    );
+
+    const payload = parseResult(result);
+    assert.equal(payload.success, true);
+    assert.equal(payload.metadata.succeeded, 1);
+    assert.equal(capturedRequest.body.Campaigns[0].BiddingScheme.Type, 'EnhancedCpc');
+    assert.equal(capturedRequest.body.Campaigns[0].Settings[0].Type, 'ShoppingSetting');
+  });
+
   test('creates keywords with all succeeding', async () => {
     const result = await mutate(
       {

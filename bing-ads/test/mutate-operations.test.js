@@ -128,6 +128,31 @@ describe('validateOperations', () => {
     assert.match(errors[0].message, /Batch limit exceeded/);
     assert.match(errors[0].message, /max 50/);
   });
+
+  test('returns error when shopping campaign create is missing ShoppingSetting', () => {
+    const errors = validateOperations([{
+      entity: 'campaigns',
+      create: { Name: 'Shopping Campaign', CampaignType: 'Shopping' }
+    }], '123');
+
+    assert.equal(errors.length, 1);
+    assert.match(errors[0].message, /require Settings with a ShoppingSetting object/);
+  });
+
+  test('returns error when shopping campaign create is missing StoreId or Priority', () => {
+    const errors = validateOperations([{
+      entity: 'campaigns',
+      create: {
+        Name: 'Shopping Campaign',
+        CampaignType: 'Shopping',
+        Settings: [{ Type: 'ShoppingSetting', SalesCountryCode: 'US' }]
+      }
+    }], '123');
+
+    assert.equal(errors.length, 2);
+    assert.ok(errors.some((error) => /StoreId/.test(error.message)));
+    assert.ok(errors.some((error) => /Priority/.test(error.message)));
+  });
 });
 
 describe('groupOperations', () => {
@@ -191,6 +216,29 @@ describe('buildApiRequest', () => {
     assert.equal(req.body.AccountId, 123);
     assert.equal(req.body.Campaigns.length, 1);
     assert.equal(req.body.Campaigns[0].Name, 'Test Campaign');
+  });
+
+  test('normalizes shopping campaign request types for the API', () => {
+    const group = {
+      entity: 'campaigns',
+      action: 'create',
+      parentId: '123',
+      items: [
+        {
+          index: 0,
+          body: {
+            Name: 'Shopping Campaign',
+            CampaignType: 'Shopping',
+            BiddingScheme: { Type: 'EnhancedCpcBiddingScheme' },
+            Settings: [{ Type: 'Shopping', StoreId: 3510637, Priority: 0, SalesCountryCode: 'US' }]
+          }
+        }
+      ]
+    };
+
+    const req = buildApiRequest(group, '123');
+    assert.equal(req.body.Campaigns[0].BiddingScheme.Type, 'EnhancedCpc');
+    assert.equal(req.body.Campaigns[0].Settings[0].Type, 'ShoppingSetting');
   });
 
   test('builds keyword create request with parent field stripped', () => {
