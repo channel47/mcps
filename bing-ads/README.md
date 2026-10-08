@@ -42,7 +42,7 @@ bing-ads-mcp
 |----------|-------------|
 | `BING_ADS_DEVELOPER_TOKEN` | Microsoft Advertising API Developer Token |
 | `BING_ADS_CLIENT_ID` | OAuth 2.0 Client ID from Azure AD |
-| `BING_ADS_REFRESH_TOKEN` | OAuth 2.0 Refresh Token |
+| `BING_ADS_REFRESH_TOKEN` | OAuth 2.0 Refresh Token (optional when `BING_ADS_TOKEN_STORE` holds one) |
 
 ### Optional
 
@@ -51,6 +51,27 @@ bing-ads-mcp
 | `BING_ADS_CLIENT_SECRET` | OAuth 2.0 Client Secret (required for confidential client apps, omit for public client apps) |
 | `BING_ADS_CUSTOMER_ID` | Default Customer ID |
 | `BING_ADS_ACCOUNT_ID` | Default Account ID |
+| `BING_ADS_TOKEN_STORE` | Path to a JSON file that persists rotated refresh tokens (see below) |
+
+### Persisting Rotated Refresh Tokens
+
+Microsoft rotates refresh tokens when they are used. Without a token store, the server keeps the new token in memory only, and you must update `BING_ADS_REFRESH_TOKEN` yourself before the old one expires.
+
+Set `BING_ADS_TOKEN_STORE` to a file path to have the server manage this for you:
+
+```json
+{
+  "refresh_token": "M.C5...",
+  "updated_at": "2026-10-08T12:00:00.000Z",
+  "source": "bing-ads-mcp"
+}
+```
+
+- **Reading:** at startup, if `BING_ADS_REFRESH_TOKEN` is unset, the refresh token is read from the store. If both are set, `BING_ADS_REFRESH_TOKEN` wins, so unset it once the store is seeded to always start from the latest token.
+- **Writing:** whenever Microsoft returns a new refresh token, the server writes it to the store atomically (temp file + rename) with file mode `0600`, creating the file if needed and keeping any other fields in it.
+- **Failures:** if the store cannot be read or written, the server logs the error code and carries on with the token it has in memory. Token values are never logged.
+
+To seed the store, create the file with just `refresh_token` and run `chmod 600` on it, or set both variables for the first run and let the first rotation create it.
 
 ## Tools
 

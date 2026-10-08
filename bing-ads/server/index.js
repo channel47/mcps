@@ -22,7 +22,7 @@ import { getPromptsList, renderPrompt } from './prompts/templates.js';
 import { getResourcesList, readResource } from './resources/index.js';
 
 const SERVER_NAME = 'bing-ads-mcp';
-const SERVER_VERSION = '1.3.2';
+const SERVER_VERSION = '1.4.0';
 
 const TOOLS = [
   {

@@ -1,3 +1,7 @@
+import { randomBytes } from 'node:crypto';
+import { readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+
 const TOKEN_URL = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 const TOKEN_SCOPE = 'https://ads.microsoft.com/msads.manage offline_access';
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
@@ -11,10 +15,63 @@ const REQUIRED_ENV_VARS = [
 let cachedAccessToken = null;
 let accessTokenExpiresAt = 0;
 let refreshPromise = null;
-let currentRefreshToken = process.env.BING_ADS_REFRESH_TOKEN || null;
+let currentRefreshToken = loadInitialRefreshToken();
+
+function readTokenStore(storePath) {
+  try {
+    const data = JSON.parse(readFileSync(storePath, 'utf8'));
+    return data && typeof data === 'object' && !Array.isArray(data) ? data : null;
+  } catch (error) {
+    // Report only the error code: JSON parse messages can echo file contents.
+    if (error.code !== 'ENOENT') {
+      console.error(`Ignoring unreadable BING_ADS_TOKEN_STORE (${error.code || 'invalid JSON'}).`);
+    }
+    return null;
+  }
+}
+
+function loadInitialRefreshToken() {
+  if (process.env.BING_ADS_REFRESH_TOKEN) {
+    return process.env.BING_ADS_REFRESH_TOKEN;
+  }
+
+  const storePath = process.env.BING_ADS_TOKEN_STORE;
+  const storedToken = storePath ? readTokenStore(storePath)?.refresh_token : null;
+  return typeof storedToken === 'string' && storedToken ? storedToken : null;
+}
+
+// Atomically replace the store (temp file + rename) so a crash never leaves a partial token.
+function persistRefreshToken(storePath, refreshToken) {
+  const tmpPath = join(dirname(storePath), `.${basename(storePath)}.${randomBytes(6).toString('hex')}.tmp`);
+  const data = {
+    ...readTokenStore(storePath),
+    refresh_token: refreshToken,
+    updated_at: new Date().toISOString(),
+    source: 'bing-ads-mcp'
+  };
+
+  try {
+    writeFileSync(tmpPath, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600, flag: 'wx' });
+    renameSync(tmpPath, storePath);
+    return true;
+  } catch (error) {
+    try {
+      unlinkSync(tmpPath);
+    } catch {
+      // Temp file was never created.
+    }
+    console.error(`Failed to write BING_ADS_TOKEN_STORE (${error.code || 'unknown error'}); rotated token kept in memory only.`);
+    return false;
+  }
+}
 
 export function validateEnvironment() {
-  const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+  const missing = REQUIRED_ENV_VARS.filter((name) => {
+    if (name === 'BING_ADS_REFRESH_TOKEN') {
+      return !currentRefreshToken && !loadInitialRefreshToken();
+    }
+    return !process.env[name];
+  });
   return {
     valid: missing.length === 0,
     missing
@@ -52,7 +109,7 @@ async function performAccessTokenRefresh() {
   }
 
   if (!currentRefreshToken) {
-    currentRefreshToken = process.env.BING_ADS_REFRESH_TOKEN;
+    currentRefreshToken = loadInitialRefreshToken();
   }
 
   if (!currentRefreshToken) {
@@ -88,8 +145,13 @@ async function performAccessTokenRefresh() {
 
   if (payload.refresh_token && payload.refresh_token !== currentRefreshToken) {
     currentRefreshToken = payload.refresh_token;
-    // Rotation is expected; warn so operators can persist the new token out-of-band.
-    console.error('BING_ADS_REFRESH_TOKEN rotated during refresh; update your stored token for future sessions.');
+    // Rotation is expected; persist it when a token store is configured, otherwise warn.
+    const storePath = process.env.BING_ADS_TOKEN_STORE;
+    if (storePath && persistRefreshToken(storePath, currentRefreshToken)) {
+      console.error('BING_ADS_REFRESH_TOKEN rotated during refresh; saved to BING_ADS_TOKEN_STORE.');
+    } else if (!storePath) {
+      console.error('BING_ADS_REFRESH_TOKEN rotated during refresh; update your stored token for future sessions (or set BING_ADS_TOKEN_STORE).');
+    }
   }
 
   return cachedAccessToken;
@@ -117,5 +179,5 @@ export function clearAuthCacheForTests() {
   cachedAccessToken = null;
   accessTokenExpiresAt = 0;
   refreshPromise = null;
-  currentRefreshToken = process.env.BING_ADS_REFRESH_TOKEN || null;
+  currentRefreshToken = loadInitialRefreshToken();
 }
