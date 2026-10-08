@@ -5,6 +5,7 @@ import { buildQuery, TEMPLATES } from '../utils/gaql-templates.js';
 /**
  * List all accessible Google Ads accounts
  * @param {Object} params
+ * @param {string} [params.login_customer_id] - MCC account ID to enumerate (overrides env var)
  * @param {boolean} [params.include_manager_accounts=false] - Include MCC accounts
  * @returns {Object} MCP response with account list
  */
@@ -12,18 +13,20 @@ export async function listAccounts(params = {}) {
   try {
     const includeManagers = params.include_manager_accounts || false;
 
-    // Use login customer ID or default customer ID
-    const customerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ||
-                       process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
+    // Resolve MCC to enumerate. list_accounts always needs an MCC, so it also
+    // falls back to the default customer ID.
+    const loginCustomerId = params.login_customer_id ||
+                            process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ||
+                            process.env.GOOGLE_ADS_DEFAULT_CUSTOMER_ID;
 
-    if (!customerId) {
+    if (!loginCustomerId) {
       throw new Error(
-        'Either GOOGLE_ADS_LOGIN_CUSTOMER_ID or GOOGLE_ADS_DEFAULT_CUSTOMER_ID must be set'
+        'Either login_customer_id parameter, GOOGLE_ADS_LOGIN_CUSTOMER_ID, or GOOGLE_ADS_DEFAULT_CUSTOMER_ID must be set'
       );
     }
 
-    // Get customer client
-    const customer = getCustomerClient(customerId);
+    // The MCC is both the query target and the login customer
+    const customer = getCustomerClient(loginCustomerId, loginCustomerId);
 
     // Build query with optional manager filter
     const filters = includeManagers ? '' : "WHERE customer_client.manager = false";

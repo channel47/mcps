@@ -22,6 +22,8 @@ Bundled with the [media-buyer plugin](https://github.com/channel47/plugins). No 
 
 ### Standalone Use
 
+Requires Node.js 22 or newer.
+
 ```bash
 npx @channel47/google-ads-mcp@latest
 ```
@@ -48,7 +50,7 @@ google-ads-mcp
 
 | Variable | Description |
 |----------|-------------|
-| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | MCC Account ID (10 digits, no dashes) |
+| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | Default MCC Account ID (10 digits, no dashes). Tools accept a `login_customer_id` parameter to use a different MCC per call. |
 | `GOOGLE_ADS_DEFAULT_CUSTOMER_ID` | Default account ID for queries |
 | `GOOGLE_ADS_READ_ONLY` | Set to `true` to hide the mutate tool entirely — query and list only |
 
@@ -81,6 +83,10 @@ Remove `GOOGLE_ADS_READ_ONLY` or set to `false` to enable the mutate tool.
 
 List all accessible Google Ads accounts.
 
+**Parameters:**
+- `login_customer_id` (string, optional): MCC to enumerate (overrides `GOOGLE_ADS_LOGIN_CUSTOMER_ID`)
+- `include_manager_accounts` (boolean, optional): Include MCC accounts (default: false)
+
 **Returns:** Array of account objects with ID, name, currency, and status.
 
 ### query
@@ -89,6 +95,7 @@ Execute any GAQL SELECT query. Returns clean JSON results.
 
 **Parameters:**
 - `customer_id` (string, optional): Account ID (10 digits, no dashes)
+- `login_customer_id` (string, optional): MCC to authenticate through (overrides `GOOGLE_ADS_LOGIN_CUSTOMER_ID`)
 - `query` (string, required): GAQL SELECT query
 - `limit` (integer, optional): Max rows to return (default: 100, max: 10000)
 
@@ -107,6 +114,7 @@ Execute write operations using GoogleAdsService.Mutate.
 
 **Parameters:**
 - `customer_id` (string, optional): Account ID
+- `login_customer_id` (string, optional): MCC to authenticate through (overrides `GOOGLE_ADS_LOGIN_CUSTOMER_ID`)
 - `operations` (array, required): Mutation operations
 - `partial_failure` (boolean, optional): Enable partial failure mode (default: true)
 - `dry_run` (boolean, optional): Validate without executing (default: true for safety)

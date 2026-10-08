@@ -60,14 +60,15 @@ export function initializeGoogleAdsClient() {
 /**
  * Get authenticated customer client for a specific account
  * @param {string} customerId - Google Ads account ID (without dashes)
+ * @param {string} [loginCustomerId] - MCC account ID to authenticate through (overrides env var)
  * @returns {Customer}
  */
-export function getCustomerClient(customerId) {
+export function getCustomerClient(customerId, loginCustomerId) {
   const client = initializeGoogleAdsClient();
 
   return client.Customer({
     customer_id: customerId,
     refresh_token: process.env.GOOGLE_ADS_REFRESH_TOKEN,
-    login_customer_id: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID,
+    login_customer_id: loginCustomerId || process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID,
   });
 }

@@ -26,7 +26,7 @@ import { getPromptsList, renderPrompt } from './prompts/templates.js';
 
 // Server metadata
 const SERVER_NAME = 'google-ads-mcp';
-const SERVER_VERSION = '1.1.1';
+const SERVER_VERSION = '1.3.0';
 
 // Validate environment on startup
 const { valid, missing } = validateEnvironment();
@@ -61,6 +61,10 @@ const ALL_TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
+        login_customer_id: {
+          type: 'string',
+          description: 'MCC account ID to authenticate through (overrides GOOGLE_ADS_LOGIN_CUSTOMER_ID env var). Use when accessing accounts under a different MCC than the default.'
+        },
         include_manager_accounts: {
           type: 'boolean',
           description: 'Include manager (MCC) accounts in results',
@@ -78,6 +82,10 @@ const ALL_TOOLS = [
         customer_id: {
           type: 'string',
           description: 'Google Ads account ID (optional, uses default if not specified)'
+        },
+        login_customer_id: {
+          type: 'string',
+          description: 'MCC account ID to authenticate through (overrides GOOGLE_ADS_LOGIN_CUSTOMER_ID env var). Use when accessing accounts under a different MCC than the default.'
         },
         query: {
           type: 'string',
@@ -122,6 +130,10 @@ For IMAGE/VIDEO assets, use 'image_file_path' or 'video_file_path' with absolute
         customer_id: {
           type: 'string',
           description: 'Google Ads customer ID (optional, uses default if not specified)'
+        },
+        login_customer_id: {
+          type: 'string',
+          description: 'MCC account ID to authenticate through (overrides GOOGLE_ADS_LOGIN_CUSTOMER_ID env var). Use when accessing accounts under a different MCC than the default.'
         },
         operations: {
           type: 'array',

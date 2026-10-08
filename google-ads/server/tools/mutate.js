@@ -9,6 +9,7 @@ import { getCustomerId } from '../utils/validation.js';
  *
  * @param {Object} params - Mutation parameters
  * @param {string} params.customer_id - Google Ads customer ID (optional, uses env default)
+ * @param {string} [params.login_customer_id] - MCC account ID to authenticate through (optional)
  * @param {Array} params.operations - Array of mutation operation objects
  * @param {boolean} params.partial_failure - Enable partial failure mode (default: true)
  * @param {boolean} params.dry_run - Validate only, don't execute (default: true)
@@ -33,7 +34,7 @@ export async function mutate(params) {
     return formatError(new Error('operations array is required and must contain at least one operation'));
   }
 
-  const customer = getCustomerClient(customer_id);
+  const customer = getCustomerClient(customer_id, params.login_customer_id);
   let response;
   let partialFailureErrors = [];
 

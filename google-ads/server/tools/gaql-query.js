@@ -8,6 +8,7 @@ import { blockMutations, getCustomerId } from '../utils/validation.js';
  *
  * @param {Object} params
  * @param {string} [params.customer_id] - Google Ads account ID
+ * @param {string} [params.login_customer_id] - MCC account ID to authenticate through
  * @param {string} params.query - GAQL query string (SELECT only)
  * @param {number} [params.limit=100] - Maximum rows to return (max: 10000)
  * @returns {Object} MCP response with query results
@@ -59,7 +60,7 @@ export async function runGaqlQuery(params = {}) {
       }
     }
 
-    const customer = getCustomerClient(customerId);
+    const customer = getCustomerClient(customerId, params.login_customer_id);
 
     // Execute query
     const startTime = Date.now();

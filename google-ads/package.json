@@ -1,6 +1,6 @@
 {
   "name": "@channel47/google-ads-mcp",
-  "version": "1.1.1",
+  "version": "1.3.0",
   "description": "Google Ads MCP Server - Query and mutate Google Ads data using GAQL",
   "main": "server/index.js",
   "bin": {
@@ -9,6 +9,7 @@
   "type": "module",
   "files": [
     "server/**/*.js",
+    "server/**/*.md",
     "README.md",
     "LICENSE"
   ],
@@ -39,10 +40,9 @@
   "homepage": "https://github.com/channel47/mcps/tree/main/google-ads#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "google-ads-api": "^21.0.1",
-    "google-auth-library": "^9.0.0"
+    "google-ads-api": "^25.1.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   }
 }
